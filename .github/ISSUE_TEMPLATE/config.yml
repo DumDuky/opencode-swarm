@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/DumDuky/opencode-swarm/blob/main/README.md
+    about: Install, configuration, commands, and tools.
+  - name: Validation runs
+    url: https://github.com/DumDuky/opencode-swarm/blob/main/docs/e2e-demo.md
+    about: Real swarm runs and their results.
+  - name: Security policy
+    url: https://github.com/DumDuky/opencode-swarm/blob/main/SECURITY.md
+    about: Please report vulnerabilities privately.

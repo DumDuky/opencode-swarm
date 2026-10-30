@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>opencode-swarm — Parallel agents for OpenCode</title>
+  <meta name="description" content="Turn an OpenCode chat into a supervised swarm. Parallel agents, a shared task board, file leases, peer messaging, and a low-friction orchestrator.">
+  <meta property="og:title" content="opencode-swarm">
+  <meta property="og:description" content="Parallel agents. One shared plan. A swarm that actually finishes.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/banner.svg">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/logo.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #070b14;
+      --bg-2: #0b1020;
+      --panel: rgba(15, 23, 42, 0.72);
+      --panel-2: #0f172a;
+      --border: rgba(148, 163, 184, 0.14);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --teal: #2dd4bf;
+      --teal-soft: #5eead4;
+      --violet: #8b5cf6;
+      --violet-soft: #c4b5fd;
+      --radius: 18px;
+      --max: 1120px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(45, 212, 191, 0.12), transparent 60%),
+        radial-gradient(800px 500px at 90% 0%, rgba(139, 92, 246, 0.12), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--teal-soft); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { width: min(calc(100% - 40px), var(--max)); margin: 0 auto; }
+
+    nav {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(7, 11, 20, 0.78);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; gap: 20px; min-height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 650; letter-spacing: -0.02em; }
+    .brand img { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 14px; }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .gh {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 13px; border: 1px solid var(--border); border-radius: 10px;
+      background: rgba(255,255,255,0.03); color: var(--text); font-size: 13px;
+    }
+    .gh:hover { border-color: rgba(45,212,191,0.55); text-decoration: none; }
+    @media (max-width: 760px) { .nav-links { display: none; } }
+
+    header { padding: 76px 0 36px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(45,212,191,0.28); background: rgba(45,212,191,0.08);
+      color: var(--teal-soft); font-size: 12px; font-family: var(--mono);
+      padding: 7px 11px; border-radius: 999px; margin-bottom: 22px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+    h1 {
+      margin: 0 0 18px; font-size: clamp(42px, 7vw, 74px); line-height: 0.98;
+      letter-spacing: -0.055em; font-weight: 780; max-width: 900px;
+    }
+    h1 .grad {
+      background: linear-gradient(90deg, var(--teal-soft), var(--violet-soft));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lede { margin: 0 0 30px; color: var(--muted); font-size: clamp(17px, 2.2vw, 21px); max-width: 720px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 12px 18px; border-radius: 12px; font-weight: 650; font-size: 14px;
+      border: 1px solid transparent;
+    }
+    .btn.primary { background: linear-gradient(90deg, #2dd4bf, #8b5cf6); color: #071018; }
+    .btn.primary:hover { text-decoration: none; filter: brightness(1.06); }
+    .btn.ghost { border-color: var(--border); background: rgba(255,255,255,0.03); color: var(--text); }
+    .btn.ghost:hover { border-color: rgba(45,212,191,0.45); text-decoration: none; }
+    .hero-art { margin-top: 46px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+    .hero-art img { display: block; width: 100%; height: auto; }
+
+    section { padding: 72px 0; border-top: 1px solid var(--border); }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+    h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.035em; line-height: 1.1; }
+    .section-head p { margin: 0; color: var(--muted); max-width: 520px; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+      transition: border-color .18s ease, transform .18s ease;
+    }
+    .card:hover { border-color: rgba(45,212,191,0.35); transform: translateY(-2px); }
+    .card .icon { font-family: var(--mono); color: var(--teal-soft); font-size: 13px; margin-bottom: 10px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: -0.01em; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 820px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+    .step { border-left: 2px solid rgba(45,212,191,0.35); padding: 4px 0 4px 16px; }
+    .step b { display: block; font-family: var(--mono); color: var(--teal-soft); font-size: 12px; margin-bottom: 6px; }
+    .step span { color: var(--muted); font-size: 14px; }
+    .diagram { margin-top: 30px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+    .diagram img { display: block; width: 100%; height: auto; }
+
+    .install-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; align-items: start; }
+    @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } }
+    .code {
+      position: relative; background: #070b14; border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .code .bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; border-bottom: 1px solid var(--border); color: var(--dim); font-family: var(--mono); font-size: 11px; }
+    .copy { cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--muted); border-radius: 7px; font-family: var(--mono); font-size: 11px; padding: 4px 8px; }
+    .copy:hover { color: var(--text); border-color: rgba(45,212,191,0.45); }
+    pre { margin: 0; padding: 16px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.65; color: #cbd5e1; }
+    .k { color: var(--violet-soft); } .s { color: var(--teal-soft); } .c { color: var(--dim); }
+    .note { color: var(--dim); font-size: 13px; margin-top: 10px; }
+    .callout { border: 1px solid rgba(139,92,246,0.24); background: rgba(139,92,246,0.07); border-radius: 14px; padding: 18px; color: var(--muted); font-size: 14px; }
+    .callout strong { color: var(--text); }
+
+    .safety { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 820px) { .safety { grid-template-columns: 1fr; } }
+    .safety .card { padding: 20px; }
+    .safety .card b { color: var(--teal-soft); }
+
+    footer { border-top: 1px solid var(--border); padding: 34px 0 44px; color: var(--dim); font-size: 13px; }
+    .footer-inner { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between; }
+    .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); }
+    .star { color: var(--muted); }
+    code.inline { font-family: var(--mono); font-size: 0.92em; color: var(--teal-soft); background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.14); padding: 2px 5px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/logo.svg" alt="">
+      opencode-swarm
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/docs/SWARM.md">Docs</a>
+    </div>
+    <a class="gh" href="https://github.com/DumDuky/opencode-swarm">★ GitHub</a>
+  </div>
+</nav>
+
+<header id="top">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> OpenCode 2.x · v0.1.0 · MIT</div>
+    <h1>Parallel agents.<br><span class="grad">One shared plan.</span></h1>
+    <p class="lede">Turn an OpenCode chat into a supervised swarm. It plans tasks, spawns workers in parallel, keeps them from overwriting each other, and finishes with evidence.</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">Get started →</a>
+      <a class="btn ghost" href="https://github.com/DumDuky/opencode-swarm">View on GitHub</a>
+    </div>
+    <div class="hero-art">
+      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/terminal.svg" alt="opencode-swarm terminal demo">
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Built for real parallel work</h2>
+      <p>Not a chat room of agents. A task board, file leases, peer messaging, and a deterministic supervisor.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="icon">01</div><h3>Plan-time write-sets</h3><p>Every task declares the files it may touch. Overlapping open tasks are rejected unless one depends on the other.</p></div>
+      <div class="card"><div class="icon">02</div><h3>File leases + hashes</h3><p>Workers claim files before editing. A content-hash check rejects writes when another agent changed the file first.</p></div>
+      <div class="card"><div class="icon">03</div><h3>Peer messaging</h3><p>Workers ask each other questions directly. The orchestrator sees digests, not every message.</p></div>
+      <div class="card"><div class="icon">04</div><h3>Low-friction reviews</h3><p>Routine spawns and file claims are automatic. Only sub-subagents, directory leases, thresholds, and budget warnings reach the orchestrator.</p></div>
+      <div class="card"><div class="icon">05</div><h3>Supervised recovery</h3><p>Stale locks, idle workers, failures, retries, budgets, and completion are handled by a background supervisor.</p></div>
+      <div class="card"><div class="icon">06</div><h3>Goal-driven autonomy</h3><p>Give it a goal. It plans, spawns, coordinates, verifies, and closes the swarm without asking you to approve each step.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How it works</h2>
+      <p>Six steps from one goal to a verified result.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><b>01 plan</b><span>The orchestrator creates tasks with write-sets, acceptance criteria, dependencies, and a size.</span></div>
+      <div class="step"><b>02 validate</b><span>The board rejects overlapping write-sets unless a dependency orders the tasks.</span></div>
+      <div class="step"><b>03 spawn</b><span>Workers get child sessions, focused briefs, roles, and file leases.</span></div>
+      <div class="step"><b>04 finish</b><span>The orchestrator reviews, verifies, integrates, and closes with a summary and test evidence.</span></div>
+    </div>
+    <div class="diagram">
+      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/architecture.svg" alt="Swarm architecture">
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Simple install</h2>
+      <p>Clone it, point OpenCode at it, and start a swarm from any chat.</p>
+    </div>
+    <div class="install-grid">
+      <div>
+        <div class="code">
+          <div class="bar"><span>terminal</span><button class="copy" data-copy="git clone https://github.com/DumDuky/opencode-swarm.git&#10;cd opencode-swarm&#10;bun install">copy</button></div>
+          <pre><span class="c"># 1. clone and install</span>
+<span class="s">git</span> clone https://github.com/DumDuky/opencode-swarm.git
+<span class="s">cd</span> opencode-swarm
+<span class="s">bun</span> install</pre>
+        </div>
+        <p class="note">Requires OpenCode 2.x, Bun 1.4+, and a tool-capable model. DeepSeek V4.1 Flash on OpenCode Go is the default.</p>
+        <div class="code" style="margin-top:14px">
+          <div class="bar"><span>use it</span><button class="copy" data-copy="/swarm Add a health endpoint with tests">copy</button></div>
+          <pre><span class="c"># 2. from any chat</span>
+<span class="s">/swarm</span> Add a health endpoint with tests</pre>
+        </div>
+        <p class="note">Or call <code class="inline">swarm_start</code> directly to keep the current agent. <code class="inline">/swarm-status</code> shows the live board.</p>
+      </div>
+      <div>
+        <div class="code">
+          <div class="bar"><span>~/.config/opencode/opencode.json</span><button class="copy" data-copy='{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    { "package": "/absolute/path/to/opencode-swarm", "options": {} }
+  ],
+  "instructions": [
+    "/absolute/path/to/opencode-swarm/docs/SWARM.md"
+  ]
+}'>copy</button></div>
+          <pre>{
+  <span class="k">"$schema"</span>: <span class="s">"https://opencode.ai/config.json"</span>,
+  <span class="k">"plugins"</span>: [
+    { <span class="k">"package"</span>: <span class="s">"/absolute/path/to/opencode-swarm"</span>, <span class="k">"options"</span>: {} }
+  ],
+  <span class="k">"instructions"</span>: [
+    <span class="s">"/absolute/path/to/opencode-swarm/docs/SWARM.md"</span>
+  ]
+}</pre>
+        </div>
+        <div class="callout" style="margin-top:14px">
+          <strong>Single project?</strong> Put the same <code class="inline">plugins</code> entry in the project's <code class="inline">opencode.json</code>. For V1, use the loader in <code class="inline">examples/local-plugin/swarm.ts</code>.
+        </div>
+        <p class="note">After editing config, run <code class="inline">opencode reload</code>. If a TUI chat was already open, restart the TUI once.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Parallel without the chaos</h2>
+      <p>The swarm is autonomous, but not unbounded.</p>
+    </div>
+    <div class="safety">
+      <div class="card"><b>No lost updates</b><p>Plan-time partitioning, file leases, and content-hash checks. Same-file edits serialize by design.</p></div>
+      <div class="card"><b>Only real decisions</b><p>Routine work is automatic. The orchestrator reviews sub-subagents, directory leases, thresholds, and budget warnings.</p></div>
+      <div class="card"><b>Stops when it should</b><p>Hard budget, member/depth/concurrency caps, destructive-command blocks, and <code class="inline">/swarm-stop</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>
+      <strong style="color:var(--text)">opencode-swarm</strong> · MIT · built for <a href="https://opencode.ai">OpenCode</a>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/DumDuky/opencode-swarm">GitHub</a>
+      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/docs/e2e-demo.md">Validation</a>
+      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/DumDuky/opencode-swarm/issues">Issues</a>
+      <a class="star" href="https://github.com/DumDuky/opencode-swarm">★ Star the repo</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  for (const button of document.querySelectorAll(".copy")) {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy || "");
+        const previous = button.textContent;
+        button.textContent = "copied";
+        setTimeout(() => (button.textContent = previous), 1200);
+      } catch {
+        button.textContent = "copy failed";
+      }
+    });
+  }
+</script>
+</body>
+</html>

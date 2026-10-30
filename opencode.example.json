@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    {
+      "package": "/absolute/path/to/opencode-swarm",
+      "options": {}
+    }
+  ],
+  "instructions": [
+    "/absolute/path/to/opencode-swarm/docs/SWARM.md"
+  ]
+}

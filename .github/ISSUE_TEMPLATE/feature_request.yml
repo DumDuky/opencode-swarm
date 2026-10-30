@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest a capability, workflow, or integration.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the workflow, not just the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like the swarm to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds, existing tools, or other designs.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Orchestration / planning
+        - File safety / leases
+        - Messaging
+        - Approvals / policy
+        - Models / cost
+        - TUI / UX
+        - Worktrees / integration
+        - Docs / examples
+        - Other
+    validations:
+      required: true

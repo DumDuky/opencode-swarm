@@ -1,0 +1,41 @@
+{
+  "models": {
+    "orchestrator": "opencode-go/deepseek-v4.1-flash",
+    "worker": "opencode-go/deepseek-v4.1-flash",
+    "scout": "opencode-go/deepseek-v4.1-flash#low",
+    "reviewer": "opencode-go/deepseek-v4.1-flash#high",
+    "planner": "opencode-go/deepseek-v4.1-flash#high",
+    "tester": "opencode-go/deepseek-v4.1-flash",
+    "integrator": "opencode-go/deepseek-v4.1-flash#high"
+  },
+  "limits": {
+    "maxMembers": 8,
+    "reviewAtMembers": 6,
+    "maxDepth": 2,
+    "maxConcurrent": 4,
+    "maxMessagesPerMinute": 10,
+    "maxMessageLength": 4000,
+    "maxTaskAttempts": 2
+  },
+  "budget": {
+    "maxCostUsd": 3,
+    "maxTokensPerTask": 0,
+    "warnAt": 0.7,
+    "pauseAt": 0.9
+  },
+  "leases": {
+    "ttlMs": 600000,
+    "autoClaim": true
+  },
+  "approval": {
+    "mode": "balanced",
+    "timeoutMs": 120000,
+    "onTimeoutMedium": "allow",
+    "onTimeoutHigh": "deny"
+  },
+  "supervisor": {
+    "intervalMs": 3000,
+    "idleNudgeMs": 120000,
+    "digestThrottleMs": 5000
+  }
+}
