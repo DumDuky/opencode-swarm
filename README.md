@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DumDuky/opencode-swarm/actions/workflows/ci.yml"><img alt="ci" src="https://img.shields.io/github/actions/workflow/status/DumDuky/opencode-swarm/ci.yml?branch=main&style=flat-square&label=ci&labelColor=06070a&color=2ee6c5"></a>
+  <a href="https://github.com/DumDuky/opencode-swarm/actions/workflows/ci.yml"><img alt="ci" src="https://img.shields.io/github/actions/workflow/status/DumDuky/opencode-swarm/ci.yml?branch=main&style=flat-square&label=ci&labelColor=06070a&color=2ee6c5&cache=2"></a>
   <img alt="tests" src="https://img.shields.io/badge/tests-52_passing-2ee6c5?style=flat-square&labelColor=06070a">
   <img alt="version" src="https://img.shields.io/github/package-json/v/DumDuky/opencode-swarm?style=flat-square&label=version&labelColor=06070a&color=9d7bff">
   <img alt="opencode" src="https://img.shields.io/badge/opencode-2.x-8d97a8?style=flat-square&labelColor=06070a">
