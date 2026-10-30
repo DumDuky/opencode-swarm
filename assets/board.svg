@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="250" viewBox="0 0 1200 250" role="img" aria-label="Live swarm board">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="250" fill="#0a0c11"/>
+  <rect width="1200" height="250" fill="url(#grid)"/>
+  <rect x="0.5" y="0.5" width="1199" height="249" fill="none" stroke="#1b1f27"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" letter-spacing="1.6">
+    <circle cx="28" cy="28" r="3" fill="#2ee6c5"/>
+    <text x="40" y="32" fill="#8d97a8">LIVE BOARD</text>
+    <text x="1172" y="32" fill="#727d8e" text-anchor="end">6 MEMBERS · 0 CONFLICTS · $0.02</text>
+  </g>
+
+  <!-- card 1 -->
+  <g>
+    <rect x="24" y="52" width="276" height="150" rx="4" fill="#090b10" stroke="#262c37"/>
+    <circle cx="44" cy="76" r="3" fill="#2ee6c5"/>
+    <text x="54" y="80" fill="#edf1f7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" letter-spacing="0.8">w1</text>
+    <rect x="230" y="66" width="54" height="18" rx="3" fill="none" stroke="#262c37"/>
+    <text x="257" y="79" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" text-anchor="middle">WORKER</text>
+    <text x="44" y="112" fill="#8d97a8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10.5">examples/health-endpoint/server.js</text>
+    <rect x="44" y="134" width="236" height="2" fill="#1b1f27"/>
+    <rect x="44" y="134" width="236" height="2" fill="#2ee6c5"/>
+    <text x="44" y="164" fill="#2ee6c5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.4">DONE · 4M 12S</text>
+  </g>
+
+  <!-- card 2 -->
+  <g>
+    <rect x="316" y="52" width="276" height="150" rx="4" fill="#090b10" stroke="#262c37"/>
+    <circle cx="336" cy="76" r="3" fill="#2ee6c5"/>
+    <text x="346" y="80" fill="#edf1f7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" letter-spacing="0.8">w2</text>
+    <rect x="522" y="66" width="54" height="18" rx="3" fill="none" stroke="#262c37"/>
+    <text x="549" y="79" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" text-anchor="middle">WORKER</text>
+    <text x="336" y="112" fill="#8d97a8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10.5">examples/health-endpoint/server.test.js</text>
+    <rect x="336" y="134" width="236" height="2" fill="#1b1f27"/>
+    <rect x="336" y="134" width="236" height="2" fill="#2ee6c5"/>
+    <text x="336" y="164" fill="#2ee6c5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.4">DONE · 5M 03S</text>
+  </g>
+
+  <!-- card 3 (live) -->
+  <g>
+    <rect x="608" y="52" width="276" height="150" rx="4" fill="#2ee6c5" stroke="#2ee6c5"/>
+    <circle cx="628" cy="76" r="3" fill="#04120f"/>
+    <text x="638" y="80" fill="#04120f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" letter-spacing="0.8">q1</text>
+    <rect x="814" y="66" width="54" height="18" rx="3" fill="none" stroke="#04120f" stroke-opacity="0.35"/>
+    <text x="841" y="79" fill="#04120f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" text-anchor="middle">TESTER</text>
+    <text x="628" y="112" fill="#04120f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10.5">node --test · 4 pass</text>
+    <rect x="628" y="134" width="236" height="2" fill="#04120f" fill-opacity="0.2"/>
+    <rect x="628" y="134" width="236" height="2" fill="#04120f"/>
+    <text x="628" y="164" fill="#04120f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.4">VERIFIED · 0 FAIL</text>
+  </g>
+
+  <!-- card 4 -->
+  <g>
+    <rect x="900" y="52" width="276" height="150" rx="4" fill="#090b10" stroke="#262c37"/>
+    <circle cx="920" cy="76" r="3" fill="#9d7bff"/>
+    <text x="930" y="80" fill="#edf1f7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" letter-spacing="0.8">orch</text>
+    <rect x="1086" y="66" width="74" height="18" rx="3" fill="none" stroke="#262c37"/>
+    <text x="1123" y="79" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" text-anchor="middle">ORCHESTRATOR</text>
+    <text x="920" y="112" fill="#8d97a8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10.5">plan → 3 tasks · 2 ready</text>
+    <rect x="920" y="134" width="236" height="2" fill="#1b1f27"/>
+    <rect x="920" y="134" width="236" height="2" fill="#9d7bff"/>
+    <text x="920" y="164" fill="#8d97a8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.4">CLOSED · 3/3 DONE</text>
+  </g>
+
+  <text x="24" y="230" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.6">SHARED WORKSPACE · FILE LEASES · CONTENT-HASH GUARD</text>
+  <text x="1176" y="230" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" letter-spacing="1.6" text-anchor="end">SUPERVISED · BUDGETED · STOPPABLE</text>
+</svg>

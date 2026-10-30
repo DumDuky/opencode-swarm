@@ -20,3 +20,5 @@ Initial release.
 - 52 tests covering the core and the health endpoint example.
 - Four example projects and real validation runs.
 - A self-contained health endpoint example with Node.js tests and a live verification report.
+- A themed landing page and README built on one visual system: `#06070a` ink, teal `#2ee6c5`, violet `#9d7bff`.
+- Matching banner, logo, architecture, and live-board assets for the repository and docs site.

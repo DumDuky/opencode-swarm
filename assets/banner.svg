@@ -1,54 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-label="opencode-swarm">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-label="opencode-swarm">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1020"/>
-      <stop offset="55%" stop-color="#0d1528"/>
-      <stop offset="100%" stop-color="#101a33"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.18" cy="0.35" r="0.7">
-      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.22"/>
-      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+    <radialGradient id="glowA" cx="0.12" cy="0.2" r="0.7">
+      <stop offset="0%" stop-color="#2ee6c5" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#2ee6c5" stop-opacity="0"/>
     </radialGradient>
-    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
-      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    <radialGradient id="glowB" cx="0.95" cy="0.9" r="0.6">
+      <stop offset="0%" stop-color="#9d7bff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#9d7bff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
     </pattern>
+    <g id="mark">
+      <circle cx="50" cy="50" r="9" fill="#2ee6c5"/>
+      <circle cx="50" cy="50" r="24" fill="none" stroke="#2ee6c5" stroke-opacity="0.45" stroke-width="1.6"/>
+      <g stroke="#2ee6c5" stroke-width="2.2" stroke-linecap="round">
+        <path d="M50 41V20M58.5 45.5l18-10.5M58.5 54.5l18 10.5M50 59v21M41.5 54.5L23.5 65M41.5 45.5L23.5 35"/>
+      </g>
+      <g fill="#2ee6c5">
+        <circle cx="50" cy="17" r="5"/><circle cx="79" cy="33" r="5"/><circle cx="79" cy="67" r="5"/>
+        <circle cx="50" cy="83" r="5"/><circle cx="21" cy="67" r="5"/><circle cx="21" cy="33" r="5"/>
+      </g>
+    </g>
   </defs>
 
-  <rect width="1200" height="340" fill="url(#bg)"/>
-  <rect width="1200" height="340" fill="url(#grid)"/>
-  <rect width="1200" height="340" fill="url(#glow)"/>
-  <circle cx="1110" cy="40" r="180" fill="#8b5cf6" opacity="0.08"/>
-  <circle cx="80" cy="310" r="160" fill="#2dd4bf" opacity="0.06"/>
+  <rect width="1280" height="400" fill="#06070a"/>
+  <rect width="1280" height="400" fill="url(#grid)"/>
+  <rect width="1280" height="400" fill="url(#glowA)"/>
+  <rect width="1280" height="400" fill="url(#glowB)"/>
+  <rect x="0.5" y="0.5" width="1279" height="399" fill="none" stroke="#1b1f27"/>
 
-  <!-- node graph -->
-  <g transform="translate(86 86)">
-    <line x1="70" y1="84" x2="158" y2="30" stroke="#2dd4bf" stroke-opacity="0.45" stroke-width="2"/>
-    <line x1="70" y1="84" x2="168" y2="84" stroke="#8b5cf6" stroke-opacity="0.45" stroke-width="2"/>
-    <line x1="70" y1="84" x2="158" y2="140" stroke="#2dd4bf" stroke-opacity="0.35" stroke-width="2"/>
-    <line x1="70" y1="84" x2="40" y2="150" stroke="#8b5cf6" stroke-opacity="0.35" stroke-width="2"/>
-    <circle cx="70" cy="84" r="30" fill="#0b1020" stroke="url(#accent)" stroke-width="3"/>
-    <circle cx="70" cy="84" r="10" fill="#2dd4bf"/>
-    <circle cx="158" cy="30" r="16" fill="#0b1020" stroke="#2dd4bf" stroke-width="2"/>
-    <circle cx="168" cy="84" r="16" fill="#0b1020" stroke="#8b5cf6" stroke-width="2"/>
-    <circle cx="158" cy="140" r="16" fill="#0b1020" stroke="#2dd4bf" stroke-width="2"/>
-    <circle cx="40" cy="150" r="16" fill="#0b1020" stroke="#8b5cf6" stroke-width="2"/>
+  <g font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="72" y="212" fill="#edf1f7" font-size="188" font-weight="500" letter-spacing="-11">swarm</text>
+    <use href="#mark" x="620" y="52" width="132" height="132"/>
+    <text x="782" y="212" fill="#edf1f7" font-size="188" font-weight="300" letter-spacing="-10">0.1</text>
+
+    <text x="74" y="292" fill="#8d97a8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" letter-spacing="2.4">PARALLEL AGENTS · ONE SHARED PLAN</text>
+    <text x="74" y="330" fill="#727d8e" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" letter-spacing="2">v0.1.0 / MIT · OPENCODE 2.X · DEEPSEEK V4.1 FLASH</text>
   </g>
 
-  <text x="300" y="126" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="64" font-weight="750" letter-spacing="-2">opencode-swarm</text>
-  <text x="302" y="174" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="23" font-weight="450">Parallel agents. One shared plan.</text>
-
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
-    <rect x="302" y="206" width="128" height="34" rx="17" fill="#0f172a" stroke="#2dd4bf" stroke-opacity="0.35"/>
-    <text x="366" y="228" fill="#5eead4" text-anchor="middle">OpenCode 2.x</text>
-    <rect x="442" y="206" width="214" height="34" rx="17" fill="#0f172a" stroke="#8b5cf6" stroke-opacity="0.35"/>
-    <text x="549" y="228" fill="#c4b5fd" text-anchor="middle">DeepSeek V4.1 Flash</text>
-    <rect x="668" y="206" width="84" height="34" rx="17" fill="#0f172a" stroke="#ffffff" stroke-opacity="0.12"/>
-    <text x="710" y="228" fill="#cbd5e1" text-anchor="middle">MIT</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" letter-spacing="1.6">
+    <rect x="1012" y="120" width="196" height="34" rx="3" fill="none" stroke="#1b1f27"/>
+    <text x="1110" y="142" fill="#8d97a8" text-anchor="middle">PLAN → SPAWN → FINISH</text>
+    <rect x="1012" y="166" width="196" height="34" rx="3" fill="none" stroke="#1b1f27"/>
+    <text x="1110" y="188" fill="#8d97a8" text-anchor="middle">52 TESTS · 0 FAIL</text>
+    <rect x="1012" y="212" width="196" height="34" rx="3" fill="#2ee6c5"/>
+    <text x="1110" y="234" fill="#04120f" text-anchor="middle" font-weight="600">/SWARM &lt;GOAL&gt;</text>
   </g>
-
-  <text x="302" y="288" fill="#64748b" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">plan → spawn → lease → verify → finish</text>
 </svg>

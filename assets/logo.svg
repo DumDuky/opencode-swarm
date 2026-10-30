@@ -1,23 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="opencode-swarm logo">
-  <defs>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-  </defs>
-  <rect x="4" y="4" width="120" height="120" rx="28" fill="#0b1020" stroke="#ffffff" stroke-opacity="0.08"/>
-  <circle cx="64" cy="64" r="13" fill="#2dd4bf"/>
-  <circle cx="64" cy="64" r="28" fill="none" stroke="url(#ring)" stroke-width="2.5" stroke-opacity="0.8"/>
-  <line x1="64" y1="36" x2="64" y2="22" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="86" y1="50" x2="99" y2="42" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="86" y1="78" x2="99" y2="86" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="64" y1="92" x2="64" y2="106" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="42" y1="78" x2="29" y2="86" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="42" y1="50" x2="29" y2="42" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="64" cy="18" r="5" fill="#2dd4bf"/>
-  <circle cx="102" cy="39" r="5" fill="#8b5cf6"/>
-  <circle cx="102" cy="89" r="5" fill="#2dd4bf"/>
-  <circle cx="64" cy="110" r="5" fill="#8b5cf6"/>
-  <circle cx="26" cy="89" r="5" fill="#2dd4bf"/>
-  <circle cx="26" cy="39" r="5" fill="#8b5cf6"/>
+  <rect x="0.5" y="0.5" width="127" height="127" rx="26" fill="#06070a" stroke="#1b1f27"/>
+  <g transform="translate(14 14) scale(1)">
+    <circle cx="50" cy="50" r="9" fill="#2ee6c5"/>
+    <circle cx="50" cy="50" r="24" fill="none" stroke="#2ee6c5" stroke-opacity="0.45" stroke-width="1.8"/>
+    <g stroke="#2ee6c5" stroke-width="2.4" stroke-linecap="round">
+      <path d="M50 41V20M58.5 45.5l18-10.5M58.5 54.5l18 10.5M50 59v21M41.5 54.5L23.5 65M41.5 45.5L23.5 35"/>
+    </g>
+    <g fill="#2ee6c5">
+      <circle cx="50" cy="17" r="5.5"/><circle cx="79" cy="33" r="5.5"/><circle cx="79" cy="67" r="5.5"/>
+      <circle cx="50" cy="83" r="5.5"/><circle cx="21" cy="67" r="5.5"/><circle cx="21" cy="33" r="5.5"/>
+    </g>
+  </g>
 </svg>
