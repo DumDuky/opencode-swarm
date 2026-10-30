@@ -80,6 +80,35 @@ exit 1
 
 ---
 
+## Run 5 — health endpoint (swarm on the plugin repo)
+
+**Goal:** add a health endpoint with tests.
+
+The repository is an OpenCode plugin, not an HTTP service, so the endpoint was
+added as a self-contained example instead of changing the plugin runtime.
+
+Plan:
+
+- `t1` worker: `examples/health-endpoint/server.js`
+- `t2` worker: `examples/health-endpoint/server.test.js` and `README.md`
+- `t3` tester, depends on both: run the tests and verify the live endpoint
+
+The two implementation tasks ran in parallel. The tester spawned after both
+were done.
+
+Result:
+
+- **3/3 tasks done**
+- `node --test examples/health-endpoint/server.test.js` -> **4 pass, 0 fail**
+- Live `GET /health` -> `200` with `{"status":"ok","service":"opencode-swarm","uptime":<number>}`
+- Unknown path -> `404` with `{"error":"Not Found"}`
+- No other files changed by the verification task
+
+Artifacts: [`examples/health-endpoint`](../examples/health-endpoint), including
+[`VERIFY.md`](../examples/health-endpoint/VERIFY.md).
+
+---
+
 ## What the runs demonstrate
 
 - Parallel child sessions actually run.

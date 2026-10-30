@@ -17,5 +17,6 @@ Initial release.
 - Wake-up path for ready and blocked tasks so the orchestrator does not stall between turns.
 - OpenCode Go defaults with DeepSeek V4.1 Flash and per-role model overrides.
 - V2 plugin entrypoint and V1 fallback loader.
-- 48 tests covering the board, bus, leases, policy, service, approvals, recovery, and persistence.
-- Three example projects and real validation runs.
+- 52 tests covering the core and the health endpoint example.
+- Four example projects and real validation runs.
+- A self-contained health endpoint example with Node.js tests and a live verification report.

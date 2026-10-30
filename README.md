@@ -252,6 +252,7 @@ Set `models.orchestrator` to `"inherit"` if you want the orchestrator to follow 
 | [`examples/tiny-demo`](examples/tiny-demo) | Two parallel workers plus a dependency-gated tester. |
 | [`examples/dynamic-write-set`](examples/dynamic-write-set) | A worker asks the orchestrator to expand its write-set. |
 | [`examples/cwd-independent-check`](examples/cwd-independent-check) | Cwd-independent verification with a tester. |
+| [`examples/health-endpoint`](examples/health-endpoint) | A tiny HTTP health endpoint with Node tests and a live verification report. |
 
 More detail, including real run results, is in [`docs/e2e-demo.md`](docs/e2e-demo.md).
 

@@ -41,6 +41,7 @@
     "examples/tiny-demo",
     "examples/dynamic-write-set",
     "examples/cwd-independent-check",
+    "examples/health-endpoint",
     "examples/local-plugin"
   ],
   "scripts": {
