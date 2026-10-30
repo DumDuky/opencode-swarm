@@ -1,250 +1,1096 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>document.documentElement.classList.add("js");</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>opencode-swarm — Parallel agents for OpenCode</title>
-  <meta name="description" content="Turn an OpenCode chat into a supervised swarm. Parallel agents, a shared task board, file leases, peer messaging, and a low-friction orchestrator.">
+  <title>opencode-swarm — parallel agents, one shared plan</title>
+  <meta name="description" content="A supervised multi-agent runtime for OpenCode. Parallel workers, a shared task board, file leases, peer messaging, and evidence before done.">
   <meta property="og:title" content="opencode-swarm">
   <meta property="og:description" content="Parallel agents. One shared plan. A swarm that actually finishes.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/banner.svg">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#06070a">
   <link rel="icon" href="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #070b14;
-      --bg-2: #0b1020;
-      --panel: rgba(15, 23, 42, 0.72);
-      --panel-2: #0f172a;
-      --border: rgba(148, 163, 184, 0.14);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --dim: #64748b;
-      --teal: #2dd4bf;
-      --teal-soft: #5eead4;
-      --violet: #8b5cf6;
-      --violet-soft: #c4b5fd;
-      --radius: 18px;
-      --max: 1120px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --bg: #06070a;
+      --panel: #0a0c11;
+      --panel-2: #0d1017;
+      --line: #1b1f27;
+      --line-2: #262c37;
+      --text: #edf1f7;
+      --muted: #8d97a8;
+      --dim: #727d8e;
+      --teal: #2ee6c5;
+      --teal-dim: #17a992;
+      --violet: #9d7bff;
+      --ink: #04120f;
+      --max: 1240px;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: "Inter Tight", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --ease: cubic-bezier(.22,.61,.36,1);
     }
+
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
-      background:
-        radial-gradient(900px 500px at 15% -10%, rgba(45, 212, 191, 0.12), transparent 60%),
-        radial-gradient(800px 500px at 90% 0%, rgba(139, 92, 246, 0.12), transparent 60%),
-        var(--bg);
+      overflow-x: clip;
+      background: var(--bg);
       color: var(--text);
       font-family: var(--sans);
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
-    a { color: var(--teal-soft); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .wrap { width: min(calc(100% - 40px), var(--max)); margin: 0 auto; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font: inherit; color: inherit; }
+    ::selection { background: var(--teal); color: var(--ink); }
 
-    nav {
-      position: sticky; top: 0; z-index: 20;
-      background: rgba(7, 11, 20, 0.78);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
+    :focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
     }
-    .nav-inner { display: flex; align-items: center; gap: 20px; min-height: 64px; }
-    .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 650; letter-spacing: -0.02em; }
-    .brand img { width: 28px; height: 28px; }
-    .nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 14px; }
-    .nav-links a { color: var(--muted); }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
-    .gh {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 13px; border: 1px solid var(--border); border-radius: 10px;
-      background: rgba(255,255,255,0.03); color: var(--text); font-size: 13px;
-    }
-    .gh:hover { border-color: rgba(45,212,191,0.55); text-decoration: none; }
-    @media (max-width: 760px) { .nav-links { display: none; } }
 
-    header { padding: 76px 0 36px; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      border: 1px solid rgba(45,212,191,0.28); background: rgba(45,212,191,0.08);
-      color: var(--teal-soft); font-size: 12px; font-family: var(--mono);
-      padding: 7px 11px; border-radius: 999px; margin-bottom: 22px;
+    /* ---------- shell ---------- */
+    .frame {
+      width: min(100% - 48px, var(--max));
+      margin: 0 auto;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
     }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 12px var(--teal); }
-    h1 {
-      margin: 0 0 18px; font-size: clamp(42px, 7vw, 74px); line-height: 0.98;
-      letter-spacing: -0.055em; font-weight: 780; max-width: 900px;
+    @media (max-width: 700px) {
+      .frame { width: 100%; border-left: 0; border-right: 0; }
     }
-    h1 .grad {
-      background: linear-gradient(90deg, var(--teal-soft), var(--violet-soft));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.6;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
-    .lede { margin: 0 0 30px; color: var(--muted); font-size: clamp(17px, 2.2vw, 21px); max-width: 720px; }
-    .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .mono .dim { color: var(--dim); }
+    .accent { color: var(--teal); }
+    .violet { color: var(--violet); }
+
+    code {
+      font-family: var(--mono);
+      font-size: .88em;
+      letter-spacing: -.01em;
+      color: #d9e3ef;
+      background: rgba(255, 255, 255, .045);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+    .list code, .body code { color: var(--teal); background: rgba(46, 230, 197, .07); border-color: rgba(46, 230, 197, .16); }
+
+    /* ---------- nav ---------- */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: rgba(6, 7, 10, .82);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      width: min(100% - 48px, var(--max));
+      margin: 0 auto;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      letter-spacing: -.02em;
+      font-size: 17px;
+    }
+    .brand svg { width: 22px; height: 22px; color: var(--teal); }
+    .brand .ver {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--dim);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 2px 5px;
+      transform: translateY(1px);
+    }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-right: 6px;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 3px rgba(46,230,197,.14);
+      flex: none;
+    }
     .btn {
-      display: inline-flex; align-items: center; gap: 9px;
-      padding: 12px 18px; border-radius: 12px; font-weight: 650; font-size: 14px;
-      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -.01em;
+      color: var(--text);
+      background: transparent;
+      transition: border-color .2s var(--ease), background .2s var(--ease), color .2s var(--ease);
+      white-space: nowrap;
     }
-    .btn.primary { background: linear-gradient(90deg, #2dd4bf, #8b5cf6); color: #071018; }
-    .btn.primary:hover { text-decoration: none; filter: brightness(1.06); }
-    .btn.ghost { border-color: var(--border); background: rgba(255,255,255,0.03); color: var(--text); }
-    .btn.ghost:hover { border-color: rgba(45,212,191,0.45); text-decoration: none; }
-    .hero-art { margin-top: 46px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
-    .hero-art img { display: block; width: 100%; height: auto; }
-
-    section { padding: 72px 0; border-top: 1px solid var(--border); }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
-    h2 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.035em; line-height: 1.1; }
-    .section-head p { margin: 0; color: var(--muted); max-width: 520px; }
-
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
-      transition: border-color .18s ease, transform .18s ease;
+    .btn:hover { border-color: #3a4250; background: rgba(255,255,255,.03); }
+    .btn.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--ink);
+      font-weight: 600;
     }
-    .card:hover { border-color: rgba(45,212,191,0.35); transform: translateY(-2px); }
-    .card .icon { font-family: var(--mono); color: var(--teal-soft); font-size: 13px; margin-bottom: 10px; }
-    .card h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: -0.01em; }
-    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .btn.primary:hover { background: #59f2d6; border-color: #59f2d6; }
+    .nav .btn { padding: 8px 13px; }
+    @media (max-width: 860px) {
+      .nav-status { display: none; }
+    }
+    @media (max-width: 560px) {
+      .nav-right .btn.ghost { display: none; }
+    }
 
-    .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    @media (max-width: 820px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
-    .step { border-left: 2px solid rgba(45,212,191,0.35); padding: 4px 0 4px 16px; }
-    .step b { display: block; font-family: var(--mono); color: var(--teal-soft); font-size: 12px; margin-bottom: 6px; }
-    .step span { color: var(--muted); font-size: 14px; }
-    .diagram { margin-top: 30px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
-    .diagram img { display: block; width: 100%; height: auto; }
+    /* ---------- type ---------- */
+    .display {
+      font-weight: 500;
+      letter-spacing: -.045em;
+      line-height: .92;
+      margin: 0;
+    }
+    .h2 {
+      font-size: clamp(34px, 5.2vw, 62px);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      line-height: .95;
+      margin: 0;
+    }
+    .h2 .slash { color: var(--dim); }
+    .lede {
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.42;
+      letter-spacing: -.015em;
+      color: #c3ccda;
+      margin: 0;
+    }
+    .body { color: var(--muted); margin: 0; font-size: 15px; line-height: 1.55; }
+    .kicker { margin: 0 0 18px; }
+    .sec-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 24px;
+      padding: 56px 40px 40px;
+      align-items: end;
+    }
+    .sec-head .body { max-width: 460px; justify-self: end; }
+    @media (max-width: 900px) {
+      .sec-head { grid-template-columns: 1fr; padding: 40px 24px 28px; }
+      .sec-head .body { justify-self: start; }
+    }
 
-    .install-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; align-items: start; }
-    @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } }
+    section { border-top: 1px solid var(--line); scroll-margin-top: 64px; }
+
+    /* ---------- hero ---------- */
+    .hero { border-top: 0; }
+    .hero-top {
+      padding: 34px 40px 0;
+      overflow: hidden;
+    }
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 1.4vw, 22px);
+      font-size: clamp(44px, 14.6vw, 214px);
+      font-weight: 500;
+      letter-spacing: -.062em;
+      line-height: .86;
+      margin: 0 0 26px;
+      white-space: nowrap;
+    }
+    .wordmark .glyph {
+      width: .82em;
+      height: .82em;
+      flex: none;
+      color: var(--teal);
+      animation: spin 24s linear infinite;
+    }
+    .wordmark .num {
+      font-weight: 300;
+      letter-spacing: -.05em;
+      color: var(--text);
+    }
+    .hero-note {
+      margin-left: auto;
+      font-size: 10.5px;
+      line-height: 1.7;
+      letter-spacing: .12em;
+      color: var(--dim);
+      text-align: right;
+      white-space: normal;
+      padding-bottom: 10px;
+    }
+    @media (max-width: 900px) { .hero-note { display: none; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+    }
+    .hero-grid > * { padding: 26px 40px; }
+    .hero-grid > * + * { border-left: 1px solid var(--line); }
+    .hero-grid .cell { display: flex; flex-direction: column; justify-content: space-between; gap: 26px; min-width: 0; }
+    .hero-grid .lede { max-width: 560px; }
+    .hero-grid .xl {
+      font-size: clamp(30px, 4.6vw, 58px);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      line-height: .96;
+      margin: 0;
+    }
+    .hero-grid .xl .slash { color: var(--dim); }
+    @media (max-width: 900px) {
+      .hero-top { padding: 22px 24px 0; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-grid > * { padding: 22px 24px; }
+      .hero-grid > * + * { border-left: 0; border-top: 1px solid var(--line); }
+      .hero-grid .xl { font-size: clamp(30px, 8vw, 44px); }
+    }
+
+    .cta-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: var(--teal);
+      color: var(--ink);
+      border-radius: 4px;
+      padding: 0 20px;
+      min-height: 92px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      transition: background .2s var(--ease), transform .2s var(--ease);
+    }
+    .cta-block:hover { background: #59f2d6; transform: translateY(-1px); }
+    .cta-block .arrow { font-size: 18px; font-weight: 400; }
+
+    /* ---------- marquee ---------- */
+    .strip {
+      border-top: 1px solid var(--line);
+      background:
+        linear-gradient(to right, rgba(255,255,255,.045) 1px, transparent 1px) 0 0 / 60px 60px,
+        linear-gradient(to bottom, rgba(255,255,255,.045) 1px, transparent 1px) 0 0 / 60px 60px,
+        var(--panel);
+      padding: 26px 0 30px;
+      overflow: hidden;
+      position: relative;
+    }
+    .strip::before, .strip::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 90px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .strip::before { left: 0; background: linear-gradient(to right, var(--panel), transparent); }
+    .strip::after { right: 0; background: linear-gradient(to left, var(--panel), transparent); }
+    .strip-label {
+      padding: 0 40px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .track {
+      display: flex;
+      gap: 10px;
+      width: max-content;
+      padding: 0 40px;
+      animation: slide 46s linear infinite;
+    }
+    .strip:hover .track { animation-play-state: paused; }
+    @keyframes slide { to { transform: translateX(-50%); } }
+
+    .member {
+      width: 252px;
+      flex: none;
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      background: #090b10;
+      padding: 14px 15px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .member .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .member .id {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .member .role {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      border: 1px solid var(--line-2);
+      border-radius: 3px;
+      padding: 2px 5px;
+    }
+    .member .file {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: -.01em;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .member .state {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+    .member .bar { height: 2px; background: var(--line-2); border-radius: 2px; overflow: hidden; }
+    .member .bar i { display: block; height: 100%; background: var(--teal); }
+    .member.live {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--ink);
+    }
+    .member.live .id, .member.live .file, .member.live .state { color: var(--ink); }
+    .member.live .role { color: var(--ink); border-color: rgba(4,18,15,.35); }
+    .member.live .bar { background: rgba(4,18,15,.2); }
+    .member.live .bar i { background: var(--ink); }
+    .member.live .dot { background: var(--ink); box-shadow: 0 0 0 3px rgba(4,18,15,.16); }
+
+    /* ---------- rows ---------- */
+    .rows { border-top: 1px solid var(--line); }
+    .row {
+      display: grid;
+      grid-template-columns: 62px minmax(0, 1.05fr) 170px minmax(0, 1.25fr);
+      gap: 20px;
+      align-items: baseline;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--line);
+      transition: background .18s var(--ease);
+    }
+    .row:hover { background: rgba(255,255,255,.018); }
+    .row .num { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--teal); }
+    .row .name { font-size: clamp(21px, 2.4vw, 30px); letter-spacing: -.03em; font-weight: 400; }
+    .row .model { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--dim); }
+    .row .desc { color: var(--muted); font-size: 14.5px; }
+    .row:hover .name { color: var(--teal); }
+    @media (max-width: 1000px) {
+      .row { grid-template-columns: 48px minmax(0, 1fr); padding: 18px 24px; row-gap: 4px; }
+      .row .model { grid-column: 2; }
+      .row .desc { grid-column: 2; }
+    }
+    .row-foot {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      border-bottom: 0;
+    }
+    .row-foot > div { padding: 22px 40px; }
+    .row-foot > div + div { border-left: 1px solid var(--line); }
+    @media (max-width: 900px) {
+      .row-foot { grid-template-columns: 1fr; }
+      .row-foot > div { padding: 20px 24px; }
+      .row-foot > div + div { border-left: 0; border-top: 1px solid var(--line); }
+    }
+
+    /* ---------- cards ---------- */
+    .cols-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+    }
+    .cols-2 > * { padding: 30px 40px 36px; }
+    .cols-2 > * + * { border-left: 1px solid var(--line); }
+    @media (max-width: 900px) {
+      .cols-2 { grid-template-columns: 1fr; }
+      .cols-2 > * { padding: 24px; }
+      .cols-2 > * + * { border-left: 0; border-top: 1px solid var(--line); }
+    }
+
+    .card-title { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-title h3 {
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -.03em;
+      margin: 0;
+    }
+    .chip {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 3px 6px;
+      border-radius: 3px;
+      border: 1px solid rgba(46,230,197,.35);
+      color: var(--teal);
+      white-space: nowrap;
+    }
+    .chip.violet { border-color: rgba(157,123,255,.4); color: var(--violet); }
+    .chip.solid { background: var(--teal); border-color: var(--teal); color: var(--ink); font-weight: 500; }
+    .price {
+      font-size: clamp(40px, 5.4vw, 62px);
+      font-weight: 300;
+      letter-spacing: -.055em;
+      line-height: 1;
+      margin: 18px 0 6px;
+    }
+    .price small { font-size: .34em; font-weight: 400; letter-spacing: -.02em; color: var(--muted); margin-left: 8px; }
+    .price-note { margin-bottom: 20px; }
+
+    .list { margin-top: 6px; border-top: 1px solid var(--line); }
+    .list li {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+      list-style: none;
+      color: #b9c2d0;
+      font-size: 14.5px;
+    }
+    .list { padding: 0; }
+    .list .n { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--teal); padding-top: 2px; }
+    .list-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin: 22px 0 8px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -.01em;
+    }
+
+    .btn.wide {
+      width: 100%;
+      min-height: 78px;
+      padding: 0 18px;
+      font-size: 14.5px;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    .btn.wide .arrow { color: var(--muted); font-size: 15px; }
+    .btn.primary .arrow { color: var(--ink); }
+    .btn.primary.wide { min-height: 78px; }
+
+    /* ---------- code ---------- */
     .code {
-      position: relative; background: #070b14; border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      background: #080a0e;
+      overflow: hidden;
+      margin: 0;
     }
-    .code .bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; border-bottom: 1px solid var(--border); color: var(--dim); font-family: var(--mono); font-size: 11px; }
-    .copy { cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--muted); border-radius: 7px; font-family: var(--mono); font-size: 11px; padding: 4px 8px; }
-    .copy:hover { color: var(--text); border-color: rgba(45,212,191,0.45); }
-    pre { margin: 0; padding: 16px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.65; color: #cbd5e1; }
-    .k { color: var(--violet-soft); } .s { color: var(--teal-soft); } .c { color: var(--dim); }
-    .note { color: var(--dim); font-size: 13px; margin-top: 10px; }
-    .callout { border: 1px solid rgba(139,92,246,0.24); background: rgba(139,92,246,0.07); border-radius: 14px; padding: 18px; color: var(--muted); font-size: 14px; }
-    .callout strong { color: var(--text); }
+    .code .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .copy {
+      border: 1px solid var(--line-2);
+      background: transparent;
+      border-radius: 3px;
+      padding: 3px 7px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .18s, border-color .18s;
+    }
+    .copy:hover { color: var(--teal); border-color: rgba(46,230,197,.4); }
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.72;
+      color: #cfd7e3;
+      tab-size: 2;
+    }
+    pre .c { color: var(--dim); }
+    pre .k { color: var(--violet); }
+    pre .s { color: var(--teal); }
+    pre .f { color: #e8edf5; }
 
-    .safety { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    @media (max-width: 820px) { .safety { grid-template-columns: 1fr; } }
-    .safety .card { padding: 20px; }
-    .safety .card b { color: var(--teal-soft); }
+    /* ---------- split feature ---------- */
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+    }
+    .split > * { padding: 32px 40px; }
+    .split > * + * { border-left: 1px solid var(--line); }
+    @media (max-width: 900px) {
+      .split { grid-template-columns: 1fr; }
+      .split > * { padding: 24px; }
+      .split > * + * { border-left: 0; border-top: 1px solid var(--line); }
+    }
+    .diagram {
+      border: 1px solid var(--line-2);
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--panel);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .diagram img { width: 100%; height: auto; }
+    .diagram .fig {
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+      font-size: 9.5px;
+      color: var(--dim);
+    }
 
-    footer { border-top: 1px solid var(--border); padding: 34px 0 44px; color: var(--dim); font-size: 13px; }
-    .footer-inner { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between; }
-    .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
-    .footer-links a { color: var(--muted); }
-    .star { color: var(--muted); }
-    code.inline { font-family: var(--mono); font-size: 0.92em; color: var(--teal-soft); background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.14); padding: 2px 5px; border-radius: 5px; }
+    .def { border-top: 1px solid var(--line); }
+    .def > div {
+      display: grid;
+      grid-template-columns: 128px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .def dt { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); padding-top: 3px; }
+    .def dd { margin: 0; color: var(--muted); font-size: 14px; }
+    .def dd b { color: var(--text); font-weight: 500; }
+
+    /* ---------- proof ---------- */
+    .quote {
+      padding: 44px 40px;
+      border-top: 1px solid var(--line);
+      font-size: clamp(26px, 3.6vw, 44px);
+      line-height: 1.18;
+      letter-spacing: -.035em;
+      font-weight: 300;
+      max-width: 1000px;
+      margin: 0;
+    }
+    .quote .accent { font-weight: 400; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+    }
+    .stats > div { padding: 30px 40px 34px; }
+    .stats > div + div { border-left: 1px solid var(--line); }
+    .stats .v {
+      font-size: clamp(34px, 4.6vw, 56px);
+      font-weight: 300;
+      letter-spacing: -.05em;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .stats .v.teal { color: var(--teal); }
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stats > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .stats > div:nth-child(4) { border-top: 1px solid var(--line); }
+      .stats > div { padding: 22px 24px; }
+      .quote { padding: 30px 24px; }
+    }
+
+    /* ---------- stack ---------- */
+    .stack {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+    }
+    .stack > div {
+      padding: 30px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      letter-spacing: -.02em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      transition: color .2s, background .2s;
+    }
+    .stack > div + div { border-left: 1px solid var(--line); }
+    .stack > div:hover { color: var(--text); background: rgba(255,255,255,.02); }
+    .stack .mark { color: var(--teal); margin-right: 7px; font-size: 12px; }
+    @media (max-width: 900px) {
+      .stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stack > div:nth-child(4) { border-left: 0; }
+    }
+    @media (max-width: 520px) {
+      .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stack > div:nth-child(3), .stack > div:nth-child(5) { border-left: 0; }
+    }
+
+    /* ---------- commands ---------- */
+    .trio {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+    }
+    .trio > * { padding: 26px 30px 32px; }
+    .trio > * + * { border-left: 1px solid var(--line); }
+    @media (max-width: 1000px) {
+      .trio { grid-template-columns: 1fr; }
+      .trio > * { padding: 24px; }
+      .trio > * + * { border-left: 0; border-top: 1px solid var(--line); }
+    }
+    .trio h3 {
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -.03em;
+      margin: 0 0 4px;
+    }
+    .trio .sub { margin-bottom: 18px; }
+    .cmd {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: -.01em;
+    }
+    .cmd span:first-child { color: var(--teal); white-space: nowrap; }
+    .cmd span:last-child { color: var(--muted); text-align: right; font-family: var(--sans); font-size: 13px; letter-spacing: 0; }
+
+    /* ---------- faq ---------- */
+    .faq { border-top: 1px solid var(--line); }
+    details {
+      border-bottom: 1px solid var(--line);
+      padding: 0 40px;
+      transition: background .2s;
+    }
+    details:hover { background: rgba(255,255,255,.014); }
+    details[open] { background: rgba(255,255,255,.02); }
+    summary {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) 24px;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 0;
+      cursor: pointer;
+      list-style: none;
+      font-size: clamp(16px, 1.9vw, 21px);
+      letter-spacing: -.02em;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary .cat {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    summary .plus {
+      justify-self: end;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--muted);
+      transition: transform .2s var(--ease), color .2s;
+    }
+    details[open] summary .plus { transform: rotate(45deg); color: var(--teal); }
+    details[open] summary { color: var(--teal); }
+    details p {
+      margin: 0;
+      padding: 0 0 22px 136px;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 800px;
+    }
+    details p a { color: var(--teal); border-bottom: 1px solid rgba(46,230,197,.3); }
+    @media (max-width: 760px) {
+      details { padding: 0 24px; }
+      summary { grid-template-columns: minmax(0, 1fr) 24px; }
+      summary .cat { grid-column: 1 / -1; padding-bottom: 4px; }
+      details p { padding-left: 0; }
+    }
+
+    /* ---------- footer ---------- */
+    footer { border-top: 1px solid var(--line); }
+    .foot-mark {
+      padding: 40px 40px 0;
+      overflow: hidden;
+    }
+    .foot-mark .wordmark { margin: 0; font-size: clamp(64px, 15vw, 208px); }
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 24px;
+      padding: 34px 40px 46px;
+      border-top: 1px solid var(--line);
+    }
+    .foot-grid h4 {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin: 0 0 12px;
+      font-weight: 400;
+    }
+    .foot-grid a { display: block; color: var(--muted); font-size: 14px; padding: 4px 0; }
+    .foot-grid a:hover { color: var(--teal); }
+    .foot-grid .note { color: var(--dim); font-size: 13px; max-width: 320px; }
+    @media (max-width: 900px) {
+      .foot-mark { padding: 24px 24px 0; }
+      .foot-grid { grid-template-columns: 1fr 1fr; padding: 26px 24px 36px; }
+    }
+    .foot-bar {
+      border-top: 1px solid var(--line);
+      padding: 16px 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .foot-bar { padding: 16px 24px; }
+    }
+
+    /* ---------- motion ---------- */
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .7s var(--ease), transform .7s var(--ease);
+    }
+    .js [data-reveal].in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .js [data-reveal] { opacity: 1; transform: none; transition: none; }
+      .track { animation: none; }
+      .wordmark .glyph { animation: none; }
+      * { transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
 
-<nav>
-  <div class="wrap nav-inner">
-    <a class="brand" href="#top">
-      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/logo.svg" alt="">
-      opencode-swarm
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="opencode-swarm home">
+      <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <circle cx="50" cy="50" r="11" fill="currentColor"/>
+        <circle cx="50" cy="50" r="25" stroke="currentColor" stroke-opacity=".45"/>
+        <g fill="currentColor">
+          <circle cx="50" cy="16" r="5.5"/><circle cx="79" cy="33" r="5.5"/>
+          <circle cx="79" cy="67" r="5.5"/><circle cx="50" cy="84" r="5.5"/>
+          <circle cx="21" cy="67" r="5.5"/><circle cx="21" cy="33" r="5.5"/>
+        </g>
+      </svg>
+      swarm <span class="ver">v0.1.0</span>
     </a>
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#how-it-works">How it works</a>
-      <a href="#install">Install</a>
-      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/docs/SWARM.md">Docs</a>
+    <div class="nav-right">
+      <span class="nav-status"><span class="dot"></span>52 tests passing</span>
+      <a class="btn ghost" href="https://github.com/DumDuky/opencode-swarm" target="_blank" rel="noreferrer">GitHub ↗</a>
+      <a class="btn primary" href="#install">Install</a>
     </div>
-    <a class="gh" href="https://github.com/DumDuky/opencode-swarm">★ GitHub</a>
   </div>
 </nav>
 
-<header id="top">
-  <div class="wrap">
-    <div class="eyebrow"><span class="dot"></span> OpenCode 2.x · v0.1.0 · MIT</div>
-    <h1>Parallel agents.<br><span class="grad">One shared plan.</span></h1>
-    <p class="lede">Turn an OpenCode chat into a supervised swarm. It plans tasks, spawns workers in parallel, keeps them from overwriting each other, and finishes with evidence.</p>
-    <div class="cta">
-      <a class="btn primary" href="#install">Get started →</a>
-      <a class="btn ghost" href="https://github.com/DumDuky/opencode-swarm">View on GitHub</a>
-    </div>
-    <div class="hero-art">
-      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/terminal.svg" alt="opencode-swarm terminal demo">
-    </div>
-  </div>
-</header>
+<main id="top">
+<div class="frame">
 
-<section id="features">
-  <div class="wrap">
-    <div class="section-head">
-      <h2>Built for real parallel work</h2>
-      <p>Not a chat room of agents. A task board, file leases, peer messaging, and a deterministic supervisor.</p>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-top">
+      <h1 class="wordmark">
+        swarm
+        <svg class="glyph" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <circle cx="50" cy="50" r="10" fill="currentColor"/>
+          <circle cx="50" cy="50" r="26" stroke="currentColor" stroke-opacity=".5" stroke-width="2"/>
+          <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M50 40V18M60 45l19-11M60 55l19 11M50 60v22M40 55L21 66M40 45L21 34"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="50" cy="15" r="6"/><circle cx="82" cy="32" r="6"/><circle cx="82" cy="68" r="6"/>
+            <circle cx="50" cy="85" r="6"/><circle cx="18" cy="68" r="6"/><circle cx="18" cy="32" r="6"/>
+          </g>
+        </svg>
+        <span class="num">0.1</span>
+        <span class="hero-note mono">one goal in<br>swarm out</span>
+      </h1>
     </div>
-    <div class="grid">
-      <div class="card"><div class="icon">01</div><h3>Plan-time write-sets</h3><p>Every task declares the files it may touch. Overlapping open tasks are rejected unless one depends on the other.</p></div>
-      <div class="card"><div class="icon">02</div><h3>File leases + hashes</h3><p>Workers claim files before editing. A content-hash check rejects writes when another agent changed the file first.</p></div>
-      <div class="card"><div class="icon">03</div><h3>Peer messaging</h3><p>Workers ask each other questions directly. The orchestrator sees digests, not every message.</p></div>
-      <div class="card"><div class="icon">04</div><h3>Low-friction reviews</h3><p>Routine spawns and file claims are automatic. Only sub-subagents, directory leases, thresholds, and budget warnings reach the orchestrator.</p></div>
-      <div class="card"><div class="icon">05</div><h3>Supervised recovery</h3><p>Stale locks, idle workers, failures, retries, budgets, and completion are handled by a background supervisor.</p></div>
-      <div class="card"><div class="icon">06</div><h3>Goal-driven autonomy</h3><p>Give it a goal. It plans, spawns, coordinates, verifies, and closes the swarm without asking you to approve each step.</p></div>
-    </div>
-  </div>
-</section>
 
-<section id="how-it-works">
-  <div class="wrap">
-    <div class="section-head">
-      <h2>How it works</h2>
-      <p>Six steps from one goal to a verified result.</p>
-    </div>
-    <div class="steps">
-      <div class="step"><b>01 plan</b><span>The orchestrator creates tasks with write-sets, acceptance criteria, dependencies, and a size.</span></div>
-      <div class="step"><b>02 validate</b><span>The board rejects overlapping write-sets unless a dependency orders the tasks.</span></div>
-      <div class="step"><b>03 spawn</b><span>Workers get child sessions, focused briefs, roles, and file leases.</span></div>
-      <div class="step"><b>04 finish</b><span>The orchestrator reviews, verifies, integrates, and closes with a summary and test evidence.</span></div>
-    </div>
-    <div class="diagram">
-      <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/architecture.svg" alt="Swarm architecture">
-    </div>
-  </div>
-</section>
-
-<section id="install">
-  <div class="wrap">
-    <div class="section-head">
-      <h2>Simple install</h2>
-      <p>Clone it, point OpenCode at it, and start a swarm from any chat.</p>
-    </div>
-    <div class="install-grid">
-      <div>
-        <div class="code">
-          <div class="bar"><span>terminal</span><button class="copy" data-copy="git clone https://github.com/DumDuky/opencode-swarm.git&#10;cd opencode-swarm&#10;bun install">copy</button></div>
-          <pre><span class="c"># 1. clone and install</span>
-<span class="s">git</span> clone https://github.com/DumDuky/opencode-swarm.git
-<span class="s">cd</span> opencode-swarm
-<span class="s">bun</span> install</pre>
+    <div class="hero-grid">
+      <div class="cell">
+        <div class="mono">
+          v0.1.0 / mit<br>
+          opencode 2.x · v1 fallback<br>
+          <span class="dim">default model</span> deepseek v4.1 flash
         </div>
-        <p class="note">Requires OpenCode 2.x, Bun 1.4+, and a tool-capable model. DeepSeek V4.1 Flash on OpenCode Go is the default.</p>
-        <div class="code" style="margin-top:14px">
-          <div class="bar"><span>use it</span><button class="copy" data-copy="/swarm Add a health endpoint with tests">copy</button></div>
-          <pre><span class="c"># 2. from any chat</span>
+        <div class="mono"><span class="dot" style="display:inline-block;margin-right:7px"></span>ready to spawn</div>
+      </div>
+      <div class="cell">
+        <p class="lede">
+          A supervised multi-agent runtime for OpenCode. One goal goes in, a plan comes out, and workers run in
+          parallel without ever overwriting each other.
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="cell">
+        <h2 class="xl">install-now<span class="slash">/</span></h2>
+        <div class="mono dim">two commands · no build step</div>
+      </div>
+      <div class="cell">
+        <a class="cta-block" href="#install">
+          <span>Get started</span><span class="arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- live member strip -->
+    <div class="strip" aria-hidden="true">
+      <div class="strip-label">
+        <span class="mono"><span class="accent">●</span> live board</span>
+        <span class="mono dim">6 members · 0 conflicts · $0.02</span>
+      </div>
+      <div class="track" id="track">
+        <div class="member">
+          <div class="top"><span class="id"><span class="dot"></span>w1</span><span class="role">worker</span></div>
+          <div class="file">examples/health-endpoint/server.js</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">done · 4m 12s</div>
+        </div>
+        <div class="member">
+          <div class="top"><span class="id"><span class="dot"></span>w2</span><span class="role">worker</span></div>
+          <div class="file">examples/health-endpoint/server.test.js</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">done · 5m 03s</div>
+        </div>
+        <div class="member live">
+          <div class="top"><span class="id"><span class="dot"></span>q1</span><span class="role">tester</span></div>
+          <div class="file">node --test · 4 pass</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">verified · 0 fail</div>
+        </div>
+        <div class="member">
+          <div class="top"><span class="id"><span class="dot"></span>orch</span><span class="role">orchestrator</span></div>
+          <div class="file">plan → 3 tasks · 2 ready</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">closed · 3/3 done</div>
+        </div>
+        <div class="member">
+          <div class="top"><span class="id"><span class="dot"></span>s1</span><span class="role">scout</span></div>
+          <div class="file">read-only · repo map</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">done</div>
+        </div>
+        <div class="member">
+          <div class="top"><span class="id"><span class="dot"></span>r1</span><span class="role">reviewer</span></div>
+          <div class="file">diff · lease audit</div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="state">approved</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROLES ============ -->
+  <section id="roles">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">01 <span class="dim">/</span> the cast</div>
+        <h2 class="h2">roles<span class="slash">/</span></h2>
+      </div>
+      <p class="body">
+        Seven roles, one runtime. Each spawn is a real child session with its own model, brief, and file
+        write-set. Read it like a running order.
+      </p>
+    </div>
+
+    <div class="rows">
+      <div class="row" data-reveal>
+        <span class="num">01</span>
+        <span class="name">orchestrator</span>
+        <span class="model">deepseek-v4.1-flash</span>
+        <span class="desc">Plans the board, spawns workers, reviews only escalations, closes with evidence.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">02</span>
+        <span class="name">worker</span>
+        <span class="model">deepseek-v4.1-flash</span>
+        <span class="desc">Owns a task and a write-set. Claims files, edits, tests, and reports back.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">03</span>
+        <span class="name">tester</span>
+        <span class="model">deepseek-v4.1-flash</span>
+        <span class="desc">Runs the commands, checks the acceptance criteria, writes the proof.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">04</span>
+        <span class="name">scout</span>
+        <span class="model">flash #low</span>
+        <span class="desc">Read-only reconnaissance. Maps the repo before anyone touches it.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">05</span>
+        <span class="name">reviewer</span>
+        <span class="model">flash #high</span>
+        <span class="desc">Reads the diff against the plan. Approves, or sends it back with reasons.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">06</span>
+        <span class="name">planner</span>
+        <span class="model">flash #high</span>
+        <span class="desc">Turns a vague goal into tasks with disjoint write-sets and dependencies.</span>
+      </div>
+      <div class="row" data-reveal>
+        <span class="num">07</span>
+        <span class="name">integrator</span>
+        <span class="model">flash #high</span>
+        <span class="desc">Runs the full gate, resolves the seams, and prepares the final summary.</span>
+      </div>
+      <div class="row-foot">
+        <div class="mono">sorted by depth · 7 roles</div>
+        <div><a class="btn wide" href="#commands">All tools <span class="arrow">↗</span></a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section id="install">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">02 <span class="dim">/</span> setup</div>
+        <h2 class="h2">install<span class="slash">/</span></h2>
+      </div>
+      <p class="body">
+        Two ways in. Global makes the swarm available in every chat; project scopes it to one repo. Both are
+        the same two lines.
+      </p>
+    </div>
+
+    <div class="cols-2">
+      <div data-reveal>
+        <div class="card-title">
+          <h3>global<span class="slash" style="color:var(--dim)">/</span></h3>
+          <span class="chip solid">recommended</span>
+        </div>
+        <p class="body">Every chat, every project. One plugin entry in the global config.</p>
+        <div class="price">$0 <small>mit · forever</small></div>
+        <div class="mono price-note">no npm account · no build step</div>
+        <a class="btn primary wide" href="#quickstart">Get the config <span class="arrow">↗</span></a>
+
+        <div class="list-title"><span>What's included</span><span class="mono dim">01 — 06</span></div>
+        <ul class="list">
+          <li><span class="n">01</span><span><code>/swarm</code> and <code>swarm_start</code> in any chat</span></li>
+          <li><span class="n">02</span><span>Parallel child sessions with per-role models</span></li>
+          <li><span class="n">03</span><span>Plan-time write-sets and dependency gates</span></li>
+          <li><span class="n">04</span><span>File leases, TTLs, and content-hash checks</span></li>
+          <li><span class="n">05</span><span>Peer messaging between workers</span></li>
+          <li><span class="n">06</span><span>Supervisor, budgets, approvals, recovery</span></li>
+        </ul>
+      </div>
+
+      <div data-reveal>
+        <div class="card-title">
+          <h3>project<span class="slash" style="color:var(--dim)">/</span></h3>
+          <span class="chip violet">scoped</span>
+        </div>
+        <p class="body">One repo only. Put the same entry in that project's <code>opencode.json</code>.</p>
+        <div class="price">free <small>v1 fallback</small></div>
+        <div class="mono price-note">opencode 1.19.x · local loader</div>
+        <a class="btn wide" href="#quickstart">See both configs <span class="arrow">↗</span></a>
+
+        <div class="list-title"><span>Requirements</span><span class="mono dim">01 — 04</span></div>
+        <ul class="list">
+          <li><span class="n">01</span><span>OpenCode 2.x (tested on 2.2.0)</span></li>
+          <li><span class="n">02</span><span>Bun 1.4+</span></li>
+          <li><span class="n">03</span><span>A tool-capable model — OpenCode Go works</span></li>
+          <li><span class="n">04</span><span>Node 20+ for the health example only</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="quickstart" class="split">
+      <div data-reveal>
+        <div class="mono kicker">quickstart</div>
+        <div class="code" style="margin-bottom:14px">
+          <div class="bar">
+            <span>terminal</span>
+            <button class="copy" data-copy="git clone https://github.com/DumDuky/opencode-swarm.git
+cd opencode-swarm
+bun install">copy</button>
+          </div>
+<pre><span class="c"># 1 · clone and install</span>
+<span class="f">git</span> clone https://github.com/DumDuky/opencode-swarm.git
+<span class="f">cd</span> opencode-swarm
+<span class="f">bun</span> install</pre>
+        </div>
+        <div class="code">
+          <div class="bar">
+            <span>any chat</span>
+            <button class="copy" data-copy="/swarm Add a health endpoint with tests">copy</button>
+          </div>
+<pre><span class="c"># 2 · give it a goal</span>
 <span class="s">/swarm</span> Add a health endpoint with tests</pre>
         </div>
-        <p class="note">Or call <code class="inline">swarm_start</code> directly to keep the current agent. <code class="inline">/swarm-status</code> shows the live board.</p>
       </div>
-      <div>
+
+      <div data-reveal>
+        <div class="mono kicker">~/.config/opencode/opencode.json</div>
         <div class="code">
-          <div class="bar"><span>~/.config/opencode/opencode.json</span><button class="copy" data-copy='{
+          <div class="bar">
+            <span>global config</span>
+            <button class="copy" data-copy='{
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     { "package": "/absolute/path/to/opencode-swarm", "options": {} }
@@ -252,68 +1098,361 @@
   "instructions": [
     "/absolute/path/to/opencode-swarm/docs/SWARM.md"
   ]
-}'>copy</button></div>
-          <pre>{
+}'>copy</button>
+          </div>
+<pre>{
   <span class="k">"$schema"</span>: <span class="s">"https://opencode.ai/config.json"</span>,
   <span class="k">"plugins"</span>: [
-    { <span class="k">"package"</span>: <span class="s">"/absolute/path/to/opencode-swarm"</span>, <span class="k">"options"</span>: {} }
+    { <span class="k">"package"</span>: <span class="s">"/absolute/path/to/opencode-swarm"</span>,
+      <span class="k">"options"</span>: {} }
   ],
   <span class="k">"instructions"</span>: [
     <span class="s">"/absolute/path/to/opencode-swarm/docs/SWARM.md"</span>
   ]
 }</pre>
         </div>
-        <div class="callout" style="margin-top:14px">
-          <strong>Single project?</strong> Put the same <code class="inline">plugins</code> entry in the project's <code class="inline">opencode.json</code>. For V1, use the loader in <code class="inline">examples/local-plugin/swarm.ts</code>.
-        </div>
-        <p class="note">After editing config, run <code class="inline">opencode reload</code>. If a TUI chat was already open, restart the TUI once.</p>
+        <p class="body" style="margin-top:14px;font-size:13.5px">
+          Run <code>opencode reload</code> after editing. <code>opencode plugin list</code> should show
+          <code>opencode-swarm</code>.
+        </p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="safety">
-  <div class="wrap">
-    <div class="section-head">
-      <h2>Parallel without the chaos</h2>
-      <p>The swarm is autonomous, but not unbounded.</p>
+  <!-- ============ SAFETY ============ -->
+  <section id="safety">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">03 <span class="dim">/</span> the hard part</div>
+        <h2 class="h2">no-lost-updates<span class="slash">/</span></h2>
+      </div>
+      <p class="body">
+        Parallel agents are easy to demo and hard to trust. Three layers keep the workspace consistent, and a
+        fourth keeps the bill honest.
+      </p>
     </div>
-    <div class="safety">
-      <div class="card"><b>No lost updates</b><p>Plan-time partitioning, file leases, and content-hash checks. Same-file edits serialize by design.</p></div>
-      <div class="card"><b>Only real decisions</b><p>Routine work is automatic. The orchestrator reviews sub-subagents, directory leases, thresholds, and budget warnings.</p></div>
-      <div class="card"><b>Stops when it should</b><p>Hard budget, member/depth/concurrency caps, destructive-command blocks, and <code class="inline">/swarm-stop</code>.</p></div>
+
+    <div class="split">
+      <div data-reveal>
+        <div class="diagram">
+          <img src="https://raw.githubusercontent.com/DumDuky/opencode-swarm/main/assets/architecture.svg" alt="Swarm architecture: orchestrator over a task board, message bus, file leases, and supervisor, with workers below">
+          <div class="mono fig">fig. 01 — control plane over shared state</div>
+        </div>
+      </div>
+      <div data-reveal>
+        <dl class="def">
+          <div>
+            <dt>partition</dt>
+            <dd><b>Plan-time write-sets.</b> Overlapping open tasks are rejected unless a dependency orders them.</dd>
+          </div>
+          <div>
+            <dt>leases</dt>
+            <dd><b>Claim before edit.</b> File and directory leases conflict correctly, and expire on a TTL.</dd>
+          </div>
+          <div>
+            <dt>hashes</dt>
+            <dd><b>Stale writes fail.</b> If the file changed since the last read, the edit is refused and must re-read.</dd>
+          </div>
+          <div>
+            <dt>budget</dt>
+            <dd><b>Cost is the guard.</b> Warn, then pause. Member, depth, and concurrency caps are separate.</dd>
+          </div>
+        </dl>
+        <div class="mono" style="margin-top:16px">
+          same-file edits serialize by design · worktrees are next
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- ============ PROOF ============ -->
+  <section id="proof">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">04 <span class="dim">/</span> receipts</div>
+        <h2 class="h2">proof<span class="slash">/</span></h2>
+      </div>
+      <p class="body">
+        Real runs, not screenshots. Every number below comes from the repo's test suite and its recorded
+        swarm runs.
+      </p>
+    </div>
+
+    <blockquote class="quote" data-reveal>
+      Two workers, one dependency gate, zero overwrites. The tester spawned
+      <span class="accent">only after both were done</span> — and the orchestrator re-ran the commands before
+      closing the swarm.
+    </blockquote>
+
+    <div class="stats">
+      <div data-reveal>
+        <div class="v teal">52</div>
+        <div class="mono">tests passing</div>
+      </div>
+      <div data-reveal>
+        <div class="v">0</div>
+        <div class="mono">lost updates</div>
+      </div>
+      <div data-reveal>
+        <div class="v">$3.00</div>
+        <div class="mono">default budget</div>
+      </div>
+      <div data-reveal>
+        <div class="v">3/3</div>
+        <div class="mono">tasks · health run</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STACK ============ -->
+  <section id="stack">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">05 <span class="dim">/</span> dependencies</div>
+        <h2 class="h2">built-with<span class="slash">/</span></h2>
+      </div>
+      <p class="body">Small surface, boring dependencies. The core talks to a narrow runtime interface, so it stays testable.</p>
+    </div>
+    <div class="stack">
+      <div><span class="mark">◆</span>OpenCode</div>
+      <div><span class="mark">◆</span>Bun</div>
+      <div><span class="mark">◆</span>TypeScript</div>
+      <div><span class="mark">◆</span>Zod</div>
+      <div><span class="mark">◆</span>DeepSeek</div>
+      <div><span class="mark">◆</span>GitHub Actions</div>
+    </div>
+  </section>
+
+  <!-- ============ COMMANDS ============ -->
+  <section id="commands">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">06 <span class="dim">/</span> the interface</div>
+        <h2 class="h2">surface-area<span class="slash">/</span></h2>
+      </div>
+      <p class="body">Five commands, ten tools, five config groups. That is the whole API you have to remember.</p>
+    </div>
+
+    <div class="trio">
+      <div data-reveal>
+        <h3>commands<span class="slash" style="color:var(--dim)">/</span></h3>
+        <div class="mono sub">5 · typed in chat</div>
+        <div class="cmd"><span>/swarm &lt;goal&gt;</span><span>start or resume</span></div>
+        <div class="cmd"><span>/swarm-status</span><span>board, leases, budget</span></div>
+        <div class="cmd"><span>/swarm-stop</span><span>stop and interrupt</span></div>
+        <div class="cmd"><span>/swarm-approve</span><span>allow an escalation</span></div>
+        <div class="cmd"><span>/swarm-deny</span><span>refuse an escalation</span></div>
+      </div>
+      <div data-reveal>
+        <h3>tools<span class="slash" style="color:var(--dim)">/</span></h3>
+        <div class="mono sub">10 · called by agents</div>
+        <div class="cmd"><span>swarm_task</span><span>plan and claim</span></div>
+        <div class="cmd"><span>swarm_spawn</span><span>start a member</span></div>
+        <div class="cmd"><span>swarm_message</span><span>talk to peers</span></div>
+        <div class="cmd"><span>swarm_files</span><span>lease files</span></div>
+        <div class="cmd"><span>swarm_wait</span><span>join results</span></div>
+        <div class="cmd"><span>swarm_finish</span><span>close with proof</span></div>
+        <div class="cmd"><span>swarm_review</span><span>approval queue</span></div>
+      </div>
+      <div data-reveal>
+        <h3>config<span class="slash" style="color:var(--dim)">/</span></h3>
+        <div class="mono sub">5 · one json block</div>
+        <div class="cmd"><span>models</span><span>per-role, or inherit</span></div>
+        <div class="cmd"><span>limits</span><span>members, depth, rate</span></div>
+        <div class="cmd"><span>budget</span><span>warn, pause, hard stop</span></div>
+        <div class="cmd"><span>leases</span><span>ttl, auto-claim</span></div>
+        <div class="cmd"><span>approval</span><span>balanced, strict, permissive</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">07 <span class="dim">/</span> before you ask</div>
+        <h2 class="h2">questions<span class="slash">/</span></h2>
+      </div>
+      <p class="body">The honest answers, including the parts that are still missing.</p>
+    </div>
+
+    <div class="faq">
+      <details data-reveal>
+        <summary><span class="cat">install</span><span>Do I need OpenCode Go?</span><span class="plus">+</span></summary>
+        <p>No. Any tool-capable provider works. DeepSeek V4.1 Flash on OpenCode Go is only the default because it is cheap and fast at this task shape. Set <code>models.orchestrator</code> to <code>"inherit"</code> to follow whatever model you picked with <code>/models</code>.</p>
+      </details>
+      <details data-reveal>
+        <summary><span class="cat">safety</span><span>Can two workers edit the same file?</span><span class="plus">+</span></summary>
+        <p>Not concurrently. The board rejects overlapping write-sets at plan time, leases serialize whatever still collides, and the content-hash guard refuses a write when the file changed underneath the worker.</p>
+      </details>
+      <details data-reveal>
+        <summary><span class="cat">cost</span><span>What stops a runaway swarm?</span><span class="plus">+</span></summary>
+        <p>A cost budget with warn and pause thresholds, plus member, depth, concurrency, and message-rate caps. <code>/swarm-stop</code> interrupts everything immediately. The budget is tracked per swarm, not per session.</p>
+      </details>
+      <details data-reveal>
+        <summary><span class="cat">autonomy</span><span>Does it run forever on its own?</span><span class="plus">+</span></summary>
+        <p>No. It is goal-driven, not a daemon. It stops when the board is done, when you stop it, when the budget is hit, or when a limit is exceeded. It will not invent new goals.</p>
+      </details>
+      <details data-reveal>
+        <summary><span class="cat">limits</span><span>Is it a sandbox?</span><span class="plus">+</span></summary>
+        <p>No, and you should not treat it as one. Workers run with the permissions OpenCode gives them. Destructive shell commands are blocked or escalated, but interpreters and repo content are still dangerous. Point it at repositories you trust.</p>
+      </details>
+      <details data-reveal>
+        <summary><span class="cat">roadmap</span><span>What is still missing?</span><span class="plus">+</span></summary>
+        <p>Worktree isolation and a merge queue, a TUI dashboard for live state, an npm package, and richer plan validation. The current model is a shared workspace with leases, which is safe but serializes same-file edits. See the <a href="https://github.com/DumDuky/opencode-swarm/blob/main/README.md#roadmap">roadmap</a>.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ START ============ -->
+  <section id="start">
+    <div class="sec-head" data-reveal>
+      <div>
+        <div class="mono kicker">08 <span class="dim">/</span> your turn</div>
+        <h2 class="h2">run-it<span class="slash">/</span></h2>
+      </div>
+      <p class="body">
+        Clone it, add one entry, reload. Then give it a goal and watch the board fill up. No account, no
+        telemetry, no build step.
+      </p>
+    </div>
+
+    <div class="split">
+      <div data-reveal style="display:flex;flex-direction:column;justify-content:center">
+        <div class="code">
+          <div class="bar">
+            <span>one command</span>
+            <button class="copy" data-copy="/swarm Add a health endpoint with tests">copy</button>
+          </div>
+<pre><span class="s">/swarm</span> Add a health endpoint with tests</pre>
+        </div>
+        <div class="mono" style="margin-top:14px">
+          <span class="accent">●</span> plans · spawns · leases · verifies · closes
+        </div>
+      </div>
+      <div data-reveal style="display:flex;flex-direction:column;justify-content:center;gap:12px">
+        <a class="btn primary wide" href="https://github.com/DumDuky/opencode-swarm" target="_blank" rel="noreferrer">
+          Star on GitHub <span class="arrow">↗</span>
+        </a>
+        <a class="btn wide" href="https://github.com/DumDuky/opencode-swarm/blob/main/README.md" target="_blank" rel="noreferrer">
+          Read the docs <span class="arrow">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
 
 <footer>
-  <div class="wrap footer-inner">
-    <div>
-      <strong style="color:var(--text)">opencode-swarm</strong> · MIT · built for <a href="https://opencode.ai">OpenCode</a>
+  <div class="frame" style="border-top:0">
+    <div class="foot-mark">
+      <div class="wordmark" aria-hidden="true">
+        swarm
+        <svg class="glyph" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="10" fill="currentColor"/>
+          <circle cx="50" cy="50" r="26" stroke="currentColor" stroke-opacity=".5" stroke-width="2"/>
+          <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M50 40V18M60 45l19-11M60 55l19 11M50 60v22M40 55L21 66M40 45L21 34"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="50" cy="15" r="6"/><circle cx="82" cy="32" r="6"/><circle cx="82" cy="68" r="6"/>
+            <circle cx="50" cy="85" r="6"/><circle cx="18" cy="68" r="6"/><circle cx="18" cy="32" r="6"/>
+          </g>
+        </svg>
+        <span class="num">/</span>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="https://github.com/DumDuky/opencode-swarm">GitHub</a>
-      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/docs/e2e-demo.md">Validation</a>
-      <a href="https://github.com/DumDuky/opencode-swarm/blob/main/CONTRIBUTING.md">Contributing</a>
-      <a href="https://github.com/DumDuky/opencode-swarm/issues">Issues</a>
-      <a class="star" href="https://github.com/DumDuky/opencode-swarm">★ Star the repo</a>
+
+    <div class="foot-grid">
+      <div>
+        <h4>opencode-swarm</h4>
+        <p class="note">Parallel agents. One shared plan. A swarm that actually finishes. MIT licensed, built for OpenCode.</p>
+      </div>
+      <div>
+        <h4>product</h4>
+        <a href="#roles">Roles</a>
+        <a href="#install">Install</a>
+        <a href="#safety">Safety</a>
+        <a href="#commands">Commands</a>
+      </div>
+      <div>
+        <h4>docs</h4>
+        <a href="https://github.com/DumDuky/opencode-swarm/blob/main/README.md">README</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/blob/main/docs/e2e-demo.md">Validation runs</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/releases">Releases</a>
+      </div>
+      <div>
+        <h4>community</h4>
+        <a href="https://github.com/DumDuky/opencode-swarm">GitHub ↗</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/issues">Issues</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/DumDuky/opencode-swarm/blob/main/SECURITY.md">Security</a>
+      </div>
+    </div>
+
+    <div class="foot-bar">
+      <span class="mono">© 2026 DumDuky · mit</span>
+      <span class="mono dim">default model · deepseek v4.1 flash on opencode go</span>
+      <a class="mono" href="#top">back to top ↑</a>
     </div>
   </div>
 </footer>
 
 <script>
-  for (const button of document.querySelectorAll(".copy")) {
-    button.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(button.dataset.copy || "");
+  (function () {
+    // copy buttons
+    for (const button of document.querySelectorAll(".copy")) {
+      button.addEventListener("click", async function () {
         const previous = button.textContent;
-        button.textContent = "copied";
-        setTimeout(() => (button.textContent = previous), 1200);
-      } catch {
-        button.textContent = "copy failed";
-      }
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy || "");
+          button.textContent = "copied";
+        } catch {
+          button.textContent = "failed";
+        }
+        setTimeout(function () { button.textContent = previous; }, 1400);
+      });
+    }
+
+    // duplicate the marquee track so the loop is seamless
+    const track = document.getElementById("track");
+    if (track) {
+      track.innerHTML += track.innerHTML;
+    }
+
+    // scroll reveal
+    const targets = document.querySelectorAll("[data-reveal]");
+    const reveal = function (el) { el.classList.add("in"); };
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(function (entries) {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            reveal(entry.target);
+            io.unobserve(entry.target);
+          }
+        }
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
+      targets.forEach(function (el, i) {
+        el.style.transitionDelay = Math.min(i % 6, 5) * 45 + "ms";
+        // anything already on screen is shown immediately; the rest animates on scroll
+        if (el.getBoundingClientRect().top < window.innerHeight) reveal(el);
+        else io.observe(el);
+      });
+    } else {
+      targets.forEach(reveal);
+    }
+
+    // one detail open at a time
+    const items = document.querySelectorAll(".faq details");
+    items.forEach(function (item) {
+      item.addEventListener("toggle", function () {
+        if (!item.open) return;
+        items.forEach(function (other) { if (other !== item) other.open = false; });
+      });
     });
-  }
+  })();
 </script>
 </body>
 </html>
