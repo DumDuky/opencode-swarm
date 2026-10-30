@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="opencode-swarm — parallel agents, one shared plan" width="100%">
+  <img src="assets/banner.svg?v=2" alt="opencode-swarm — parallel agents, one shared plan" width="100%">
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/board.svg" alt="Live swarm board: workers, a tester, and the orchestrator" width="100%">
+  <img src="assets/board.svg?v=2" alt="Live swarm board: workers, a tester, and the orchestrator" width="100%">
 </p>
 
 ---
@@ -143,7 +143,7 @@ V2 reuses the built-in `build`, `general`, and `explore` agents with role instru
 Parallel agents are easy to demo and hard to trust. Three layers keep the workspace consistent, and a fourth keeps the bill honest.
 
 <p align="center">
-  <img src="assets/architecture.svg" alt="Orchestrator over task board, message bus, file leases, and supervisor, with workers below" width="100%">
+  <img src="assets/architecture.svg?v=2" alt="Orchestrator over task board, message bus, file leases, and supervisor, with workers below" width="100%">
 </p>
 
 | layer | what it does |
