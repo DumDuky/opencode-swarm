@@ -122,7 +122,7 @@ Not published yet. Once it is, the entry becomes `{ "package": "opencode-swarm",
 
 Seven roles, one runtime. Every spawn is a real child session with its own model, brief, and file write-set.
 
-| | role | default model | job |
+| # | role | default model | job |
 |:--|:--|:--|:--|
 | `01` | **orchestrator** | `flash` | Plans the board, spawns workers, reviews escalations, closes with evidence. |
 | `02` | **worker** | `flash` | Owns a task and a write-set. Claims files, edits, tests, reports. |
