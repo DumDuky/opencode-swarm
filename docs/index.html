@@ -436,72 +436,83 @@
       .row-foot > div + div { border-left: 0; border-top: 1px solid var(--line); }
     }
 
-    /* ---------- cards ---------- */
-    .cols-2 {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      border-top: 1px solid var(--line);
-    }
-    .cols-2 > * { padding: 30px 40px 36px; }
-    .cols-2 > * + * { border-left: 1px solid var(--line); }
-    @media (max-width: 900px) {
-      .cols-2 { grid-template-columns: 1fr; }
-      .cols-2 > * { padding: 24px; }
-      .cols-2 > * + * { border-left: 0; border-top: 1px solid var(--line); }
-    }
-
-    .card-title { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .card-title h3 {
-      font-size: 24px;
-      font-weight: 400;
-      letter-spacing: -.03em;
-      margin: 0;
-    }
-    .chip {
-      font-family: var(--mono);
-      font-size: 9.5px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      padding: 3px 6px;
-      border-radius: 3px;
-      border: 1px solid rgba(46,230,197,.35);
-      color: var(--teal);
-      white-space: nowrap;
-    }
-    .chip.violet { border-color: rgba(157,123,255,.4); color: var(--violet); }
-    .chip.solid { background: var(--teal); border-color: var(--teal); color: var(--ink); font-weight: 500; }
-    .price {
-      font-size: clamp(40px, 5.4vw, 62px);
-      font-weight: 300;
-      letter-spacing: -.055em;
-      line-height: 1;
-      margin: 18px 0 6px;
-    }
-    .price small { font-size: .34em; font-weight: 400; letter-spacing: -.02em; color: var(--muted); margin-left: 8px; }
-    .price-note { margin-bottom: 20px; }
-
-    .list { margin-top: 6px; border-top: 1px solid var(--line); }
-    .list li {
-      display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
-      gap: 10px;
-      padding: 13px 0;
-      border-bottom: 1px solid var(--line);
-      list-style: none;
-      color: #b9c2d0;
-      font-size: 14.5px;
-    }
-    .list { padding: 0; }
-    .list .n { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--teal); padding-top: 2px; }
-    .list-title {
+    /* ---------- install flow ---------- */
+    .reqs {
       display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      margin: 22px 0 8px;
-      font-size: 14px;
+      flex-wrap: wrap;
+      gap: 26px;
+      padding: 16px 40px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .flow { border-bottom: 1px solid var(--line); }
+    .flow-step {
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+    .flow-step:last-child { border-bottom: 0; }
+    .flow-label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 26px 24px 26px 40px;
+      border-right: 1px solid var(--line);
+    }
+    .flow-label .n {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--teal);
+    }
+    .flow-label .t {
+      font-size: 22px;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+    }
+    .flow-body { padding: 26px 40px; min-width: 0; }
+    .scope {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .scope-btn {
+      border: 1px solid var(--line-2);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 3px;
+      padding: 5px 11px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color .18s, border-color .18s, background .18s;
+    }
+    .scope-btn:hover { color: var(--text); border-color: #3a4250; }
+    .scope-btn.is-on {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--ink);
       font-weight: 500;
-      letter-spacing: -.01em;
+    }
+    .scope .path { margin-left: 6px; }
+    .scope-note { margin-top: 12px; font-size: 13.5px; }
+    @media (max-width: 900px) {
+      .reqs { gap: 14px; padding: 14px 24px; }
+      .flow-step { grid-template-columns: 1fr; }
+      .flow-label {
+        flex-direction: row;
+        align-items: baseline;
+        gap: 12px;
+        padding: 16px 24px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .flow-label .t { font-size: 18px; }
+      .flow-body { padding: 18px 24px 24px; }
     }
 
     .btn.wide {
@@ -885,7 +896,7 @@
 
     <div class="hero-grid">
       <div class="cell">
-        <h2 class="xl">install-now<span class="slash">/</span></h2>
+        <h2 class="xl">start-here<span class="slash">/</span></h2>
         <div class="mono dim">two commands · no build step</div>
       </div>
       <div class="cell">
@@ -1013,84 +1024,57 @@
         <h2 class="h2">install<span class="slash">/</span></h2>
       </div>
       <p class="body">
-        Two ways in. Global makes the swarm available in every chat; project scopes it to one repo. Both are
-        the same two lines.
+        One path, three steps. The config never changes — only the file you drop it into. Global puts the
+        swarm in every chat; project scopes it to one repo.
       </p>
     </div>
 
-    <div class="cols-2">
-      <div data-reveal>
-        <div class="card-title">
-          <h3>global<span class="slash" style="color:var(--dim)">/</span></h3>
-          <span class="chip solid">recommended</span>
-        </div>
-        <p class="body">Every chat, every project. One plugin entry in the global config.</p>
-        <div class="price">$0 <small>mit · forever</small></div>
-        <div class="mono price-note">no npm account · no build step</div>
-        <a class="btn primary wide" href="#quickstart">Get the config <span class="arrow">↗</span></a>
-
-        <div class="list-title"><span>What's included</span><span class="mono dim">01 — 06</span></div>
-        <ul class="list">
-          <li><span class="n">01</span><span><code>/swarm</code> and <code>swarm_start</code> in any chat</span></li>
-          <li><span class="n">02</span><span>Parallel child sessions with per-role models</span></li>
-          <li><span class="n">03</span><span>Plan-time write-sets and dependency gates</span></li>
-          <li><span class="n">04</span><span>File leases, TTLs, and content-hash checks</span></li>
-          <li><span class="n">05</span><span>Peer messaging between workers</span></li>
-          <li><span class="n">06</span><span>Supervisor, budgets, approvals, recovery</span></li>
-        </ul>
-      </div>
-
-      <div data-reveal>
-        <div class="card-title">
-          <h3>project<span class="slash" style="color:var(--dim)">/</span></h3>
-          <span class="chip violet">scoped</span>
-        </div>
-        <p class="body">One repo only. Put the same entry in that project's <code>opencode.json</code>.</p>
-        <div class="price">free <small>v1 fallback</small></div>
-        <div class="mono price-note">opencode 1.19.x · local loader</div>
-        <a class="btn wide" href="#quickstart">See both configs <span class="arrow">↗</span></a>
-
-        <div class="list-title"><span>Requirements</span><span class="mono dim">01 — 04</span></div>
-        <ul class="list">
-          <li><span class="n">01</span><span>OpenCode 2.x (tested on 2.2.0)</span></li>
-          <li><span class="n">02</span><span>Bun 1.4+</span></li>
-          <li><span class="n">03</span><span>A tool-capable model — OpenCode Go works</span></li>
-          <li><span class="n">04</span><span>Node 20+ for the health example only</span></li>
-        </ul>
-      </div>
+    <div class="reqs mono">
+      <span><span class="dim">opencode</span> 2.x</span>
+      <span><span class="dim">bun</span> 1.4+</span>
+      <span><span class="dim">model</span> any tool-capable</span>
+      <span><span class="dim">node</span> 20+ for the example</span>
+      <span><span class="dim">license</span> mit</span>
     </div>
 
-    <div id="quickstart" class="split">
-      <div data-reveal>
-        <div class="mono kicker">quickstart</div>
-        <div class="code" style="margin-bottom:14px">
-          <div class="bar">
-            <span>terminal</span>
-            <button class="copy" data-copy="git clone https://github.com/DumDuky/opencode-swarm.git
+    <div class="flow">
+      <div class="flow-step" data-reveal>
+        <div class="flow-label">
+          <span class="n">01</span>
+          <span class="t">clone</span>
+          <span class="mono dim">~1 min</span>
+        </div>
+        <div class="flow-body">
+          <div class="code">
+            <div class="bar">
+              <span>terminal</span>
+              <button class="copy" data-copy="git clone https://github.com/DumDuky/opencode-swarm.git
 cd opencode-swarm
 bun install">copy</button>
-          </div>
-<pre><span class="c"># 1 · clone and install</span>
-<span class="f">git</span> clone https://github.com/DumDuky/opencode-swarm.git
+            </div>
+<pre><span class="f">git</span> clone https://github.com/DumDuky/opencode-swarm.git
 <span class="f">cd</span> opencode-swarm
 <span class="f">bun</span> install</pre>
-        </div>
-        <div class="code">
-          <div class="bar">
-            <span>any chat</span>
-            <button class="copy" data-copy="/swarm Add a health endpoint with tests">copy</button>
           </div>
-<pre><span class="c"># 2 · give it a goal</span>
-<span class="s">/swarm</span> Add a health endpoint with tests</pre>
         </div>
       </div>
 
-      <div data-reveal>
-        <div class="mono kicker">~/.config/opencode/opencode.json</div>
-        <div class="code">
-          <div class="bar">
-            <span>global config</span>
-            <button class="copy" data-copy='{
+      <div class="flow-step" data-reveal>
+        <div class="flow-label">
+          <span class="n">02</span>
+          <span class="t">add the plugin</span>
+          <span class="mono dim">one entry</span>
+        </div>
+        <div class="flow-body">
+          <div class="scope">
+            <button class="scope-btn is-on" data-scope="global" type="button">global</button>
+            <button class="scope-btn" data-scope="project" type="button">project</button>
+            <span class="mono path" id="scope-path">~/.config/opencode/opencode.json</span>
+          </div>
+          <div class="code">
+            <div class="bar">
+              <span>opencode.json</span>
+              <button class="copy" data-copy='{
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     { "package": "/absolute/path/to/opencode-swarm", "options": {} }
@@ -1099,7 +1083,7 @@ bun install">copy</button>
     "/absolute/path/to/opencode-swarm/docs/SWARM.md"
   ]
 }'>copy</button>
-          </div>
+            </div>
 <pre>{
   <span class="k">"$schema"</span>: <span class="s">"https://opencode.ai/config.json"</span>,
   <span class="k">"plugins"</span>: [
@@ -1110,11 +1094,30 @@ bun install">copy</button>
     <span class="s">"/absolute/path/to/opencode-swarm/docs/SWARM.md"</span>
   ]
 }</pre>
+          </div>
+          <p class="body scope-note" id="scope-note">Every chat, every project. This is the recommended one.</p>
         </div>
-        <p class="body" style="margin-top:14px;font-size:13.5px">
-          Run <code>opencode reload</code> after editing. <code>opencode plugin list</code> should show
-          <code>opencode-swarm</code>.
-        </p>
+      </div>
+
+      <div class="flow-step" data-reveal>
+        <div class="flow-label">
+          <span class="n">03</span>
+          <span class="t">reload and run</span>
+          <span class="mono dim">one goal</span>
+        </div>
+        <div class="flow-body">
+          <div class="code">
+            <div class="bar">
+              <span>terminal</span>
+              <button class="copy" data-copy="opencode reload
+opencode plugin list
+/swarm Add a health endpoint with tests">copy</button>
+            </div>
+<pre><span class="f">opencode</span> reload
+<span class="f">opencode</span> plugin list   <span class="c"># shows opencode-swarm</span>
+<span class="s">/swarm</span> Add a health endpoint with tests</pre>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1421,6 +1424,32 @@ bun install">copy</button>
     if (track) {
       track.innerHTML += track.innerHTML;
     }
+
+    // global / project scope switch
+    const scopeButtons = document.querySelectorAll(".scope-btn");
+    const scopePath = document.getElementById("scope-path");
+    const scopeNote = document.getElementById("scope-note");
+    const scopes = {
+      global: {
+        path: "~/.config/opencode/opencode.json",
+        note: "Every chat, every project. This is the recommended one."
+      },
+      project: {
+        path: "<project>/opencode.json",
+        note: "Only this repository. Same block, different file."
+      }
+    };
+    scopeButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        const scope = scopes[button.dataset.scope];
+        if (!scope) return;
+        scopeButtons.forEach(function (other) {
+          other.classList.toggle("is-on", other === button);
+        });
+        scopePath.textContent = scope.path;
+        scopeNote.textContent = scope.note;
+      });
+    });
 
     // scroll reveal
     const targets = document.querySelectorAll("[data-reveal]");
