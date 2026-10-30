@@ -8,6 +8,7 @@
   <img alt="OpenCode" src="https://img.shields.io/badge/OpenCode-2.x-111827">
   <img alt="Bun" src="https://img.shields.io/badge/Bun-1.4-000000">
   <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-0ea5a4">
+  <img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg">
 </p>
 
 <h1 align="center">opencode-swarm</h1>
@@ -283,6 +284,17 @@ Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECUR
 
 ---
 
+## Roadmap
+
+- [x] OpenCode V2 and V1 host adapters
+- [x] Plan-time write-sets, file leases, and content-hash checks
+- [x] Parallel workers with peer messaging
+- [x] Orchestrator review queue, supervisor, budgets, and recovery
+- [ ] Worktree isolation and a merge queue
+- [ ] TUI dashboard for live swarm state
+- [ ] npm package
+- [ ] Richer plan validation and conflict analysis
+
 ## Limitations
 
 - Shared workspace only. Worktree isolation and a merge queue are planned.
@@ -295,6 +307,8 @@ Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECUR
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
+
+If this saves you time, consider starring the repo.
 
 <p align="center">
   <sub>Built for OpenCode. Default model: DeepSeek V4.1 Flash on OpenCode Go.</sub>
