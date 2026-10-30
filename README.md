@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg?v=2" alt="opencode-swarm — parallel agents, one shared plan" width="100%">
+  <img src="assets/hero.svg" alt="opencode-swarm — parallel agents, one shared plan" width="100%">
 </p>
 
 <p align="center">
@@ -46,7 +46,7 @@ One goal goes in. A plan comes out. Workers run in parallel, claim their files, 
 
 It is **goal-driven, supervised autonomy** — not a daemon, not a sandbox, and not a chat room where agents politely take turns.
 
-| | what | why |
+| # | what | why |
 |:--|:--|:--|
 | `01` | **parallel by default** | Multiple child sessions work at the same time, each with its own role and model. |
 | `02` | **file-safe** | Plan-time write-sets, file leases, and content-hash checks. No lost updates. |
